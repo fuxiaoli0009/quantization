@@ -8,5 +8,4 @@ public class QuantizationContext {
 
 	@Value("${remote.service:tencentService}")
 	public String REMOVE_SERVICE;
-
 }
