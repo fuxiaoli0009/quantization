@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: quantization-center
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        file-extension: yaml
+        server-addr: 101.43.110.173:31370
+      discovery:
+        server-addr: 101.43.110.173:31370

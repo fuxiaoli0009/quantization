@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personal.quantization.mapper.QuantizationMapper">
+  <select id="getAllQuantizations" parameterType="java.lang.String"  resultType="com.personal.quantization.model.QuantizationRealtimeInfo">
+  	select * from quantization_realtime_info where selected_status = #{status}
+  </select>
+  
+  <select id="getQuantizationDetailInfos"  parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationSource">
+  	select quantization_code, source from quantization_realtime_info where selected_status in
+  	<foreach item="selected" collection="selectedStatus" open="(" separator="," close=")">
+            #{selected}
+        </foreach>
+  </select>
+  
+  <update id="batchUpdateQuantizations">
+  	update quantization_realtime_info
+  	set pb = 
+  	case quantization_code
+  	<foreach collection="quantizationDetailInfos" item="quantizationDetailInfo">
+  		when #{quantizationDetailInfo.quantizationCode} then #{quantizationDetailInfo.pb}
+  	</foreach>
+  	else 0.00
+  	end,
+  	pe =
+  	case quantization_code
+  	<foreach collection="quantizationDetailInfos" item="quantizationDetailInfo">
+  		when #{quantizationDetailInfo.quantizationCode} then #{quantizationDetailInfo.pe}
+  	</foreach>
+  	else 0.00
+  	end,
+  	real_time = 
+  	case quantization_code
+  	<foreach collection="quantizationDetailInfos" item="quantizationDetailInfo">
+  		when #{quantizationDetailInfo.quantizationCode} then #{quantizationDetailInfo.realTime}
+  	</foreach>
+  	else 0.00
+  	end
+  	where quantization_code in
+  	<foreach collection="quantizationDetailInfos" item="quantizationDetailInfo" separator="," open="(" close=")">
+  	  #{quantizationDetailInfo.quantizationCode}
+  	</foreach>
+  </update>
+  
+  <select id="selectQuantizations" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+  	SELECT
+		*,
+		(decri - incri) as diffValue
+	FROM
+		(
+		SELECT
+			quantization_code,
+			quantization_name,
+			round(( real_time / min_value - 1 ), 4)*100 AS incri,
+			round(( 1- real_time / max_value ), 4)*100 AS decri,
+			pb,
+			pe,
+			classify
+		FROM
+			quantization_realtime_info 
+		WHERE
+			selected_status in ('0', '1') 
+			AND real_time > 0 
+			AND min_value > 0 
+		) tmp 
+	WHERE
+		incri &lt; 0.25*100 AND decri > 0.78*100 
+		AND pb &lt; 5 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
+		AND instr(quantization_name, 'ST') =0
+	ORDER BY
+		( decri - incri ) DESC
+  </select>
+  
+  <update id="udpateQuantizations">
+  	UPDATE quantization_realtime_info set selected_status = '2' where quantization_code in 
+  	<foreach collection="details" item="detail" open="(" separator="," close=")">
+		#{detail.quantizationCode}
+  	</foreach>
+  </update>
+  
+  <update id="updateSelected">
+  	UPDATE quantization_realtime_info set selected_status = '0' where selected_status = '2' 
+  </update>
+  
+  <select id="selectQuantizationsByClassify" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+    SELECT
+		* 
+	FROM
+		(
+		SELECT
+			quantization_code,
+			quantization_name,
+			round(( real_time / min_value - 1 ), 4)*100 AS incri,
+			round(( 1- real_time / max_value ), 4)*100 AS decri,
+			pb,
+			pe,
+			classify,
+			selected_status 
+		FROM
+			quantization_realtime_info 
+		WHERE
+			selected_status IN ( '1', '2' ) 
+		) tmp 
+	WHERE
+		incri &lt; 0.25*100 AND decri > 0.78*100 
+		AND pb &lt; 5 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
+		AND instr(quantization_name, 'ST') =0
+	UNION ALL
+	SELECT
+			quantization_code,
+			quantization_name,
+			round(( real_time / min_value - 1 ), 4)*100 AS incri,
+			round(( 1- real_time / max_value ), 4)*100 AS decri,
+			pb,
+			pe,
+			classify,
+			selected_status 
+		FROM
+			quantization_realtime_info 
+		WHERE
+			selected_status IN ( '3' ) 
+	ORDER BY
+		classify,
+		( decri - incri ) DESC,
+		selected_status
+  </select>
+  
+  <select id="selectQuantizationsBySelected" parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+    select quantization_code, quantization_name, pb, pe, classify  from quantization_realtime_info where selected_status = #{code}
+  </select>
+  
+  <select id="queryQuantizationsBySelectedStatus" parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+    select quantization_code, quantization_name, max_value, min_value, pb, pe, classify, source, buy_price,classify
+    from quantization_realtime_info 
+    where selected_status = '1' and source in
+    <foreach collection="sources" item="source" open="(" separator="," close=")">
+		#{source}
+  	</foreach>
+  </select>
+  
+  <update id="updateQuantization">
+  	update quantization_realtime_info
+    <set>
+      <if test="description != null  and description !=''">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="buyPrice != null  and buyPrice !=''">
+        buy_price = #{buyPrice,jdbcType=DOUBLE},
+      </if>
+      <if test="classify != null  and classify !=''">
+        classify = #{classify},
+      </if>
+    </set>
+    where quantization_code = #{quantizationCode}
+  </update>
+  
+  <select id = "getCloseIndexsByCode" parameterType="string" resultType="java.lang.Integer">
+  	SELECT
+	close_price
+	FROM
+	(
+		SELECT
+			close_price,
+			create_time
+		FROM
+			tb_history_data
+		WHERE
+			CODE = #{code,jdbcType=VARCHAR}
+		ORDER BY
+			create_time DESC
+		LIMIT 50
+	) t
+	ORDER BY
+	create_time ASC
+  </select>
+  
+  <update id="updateSelectedStatus">
+  	update quantization_realtime_info
+    set selected_status = #{selectedStatus}
+    where quantization_code = #{quantizationCode}
+  </update>
+  
+  <insert id="add" parameterType="com.personal.quantization.model.QuantizationRealtimeInfo">
+    insert into quantization_realtime_info (quantization_code) values(#{quantizationCode})
+  </insert>
+</mapper>
