@@ -1,4 +1,4 @@
-package com.personal.quantization.strategy.impl;
+package com.personal.quantization.center.strategy.impl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,20 +12,20 @@ import org.springframework.stereotype.Service;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
+import com.personal.quantization.center.strategy.CenterService;
 import com.personal.quantization.enums.RemoteDataPrefixEnum;
 import com.personal.quantization.enums.StockTypeEnum;
 import com.personal.quantization.enums.TencentEnum;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationSource;
-import com.personal.quantization.model.RemoteQuantization;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.TbStock;
-import com.personal.quantization.strategy.RemoteService;
 
 import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-public class TencentService extends RemoteService {
+public class TencentService extends CenterService {
 
 	private static String REMOTE_URL_TENCENT = "http://qt.gtimg.cn/r=0q=";
 	
@@ -87,14 +87,14 @@ public class TencentService extends RemoteService {
 	}
 	
 	@Override
-	public Map<String, RemoteQuantization> transferToMap(String response) {
+	public Map<String, CenterQuantization> transferToMap(String response) {
 		
 		if(response!=null && response.contains(";")) {
 			String[] responseArray = response.split(";");
-			Map<String, RemoteQuantization> remoteDataInfoMap = new HashMap<>();
+			Map<String, CenterQuantization> remoteDataInfoMap = new HashMap<>();
 			for(int i=0; i< responseArray.length-1; i++) {
 				try {
-					RemoteQuantization remote = new RemoteQuantization();
+					CenterQuantization remote = new CenterQuantization();
 					String[] strs = responseArray[i].split("~");
 					if(strs!=null&&strs.length>0) {
 						if((strs[0].contains(RemoteDataPrefixEnum.TENCENT_HK.getCode())||strs[0].contains(RemoteDataPrefixEnum.TENCENT_SH.getCode())||strs[0].contains(RemoteDataPrefixEnum.TENCENT_SZ.getCode()))&&StringUtils.isEmpty(strs[7])) {

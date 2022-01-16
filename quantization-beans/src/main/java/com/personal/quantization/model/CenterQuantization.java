@@ -6,7 +6,7 @@ import lombok.Data;
  * 远程数据封装模板类
  */
 @Data
-public class RemoteQuantization {
+public class CenterQuantization {
 
 	public String quantizationCode;
 	

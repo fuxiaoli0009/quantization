@@ -22,16 +22,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.personal.quantization.center.api.QuantizationCenterClient;
 import com.personal.quantization.constant.Constants;
-import com.personal.quantization.context.QuantizationContext;
 import com.personal.quantization.enums.ColumnEnum;
 import com.personal.quantization.enums.QuantizationSourceEnum;
 import com.personal.quantization.mapper.QuantizationMapper;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
-import com.personal.quantization.model.RemoteQuantization;
 import com.personal.quantization.service.QuantizationService;
-import com.personal.quantization.strategy.RemoteService;
 import com.personal.quantization.utils.QuantizationUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -44,15 +43,10 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
     private RedisTemplate<String, String> redisTemplate;
 	
 	@Autowired
-	private Map<String, RemoteService> remoteServiceMap;  //Autowired注解将bean注入到Map
+	QuantizationCenterClient centerClient;
 	
 	@Autowired
 	private QuantizationMapper quantizationMapper;
-	
-	@Autowired
-	private QuantizationContext quantizationContext;
-	
-	private RemoteService remoteService;
 	
 	@Resource(name = "myDataThreadPool")
 	private ExecutorService executorService;
@@ -100,7 +94,6 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	}
 	
 	public List<QuantizationRealtimeInfo> getQuantizationRealtimeInfo(List<QuantizationDetailInfo> quantizations, String source){
-		remoteService = remoteServiceMap.get(quantizationContext.REMOVE_SERVICE);
 		String quantizationCodesResult = null;
 		try {
 			String cache = QuantizationSourceEnum.getCacheBySource(source);
@@ -116,12 +109,12 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 			log.error("redis连接超时" + e);
 			quantizationCodesResult = this.getRealTimeDatas(QuantizationUtil.transferToACodes(quantizations));
 		}
-    	Map<String, RemoteQuantization> quantizationCodesResultMap = remoteService.transferToMap(quantizationCodesResult);
+    	Map<String, CenterQuantization> quantizationCodesResultMap = centerClient.transferToMap(quantizationCodesResult);
     	return this.assembleDatas(quantizationCodesResultMap, quantizations);
 	}
 	
 	public String getRealTimeDatas(List<String> quantizationCodes) {
-		return remoteService.getRealTimeDatas(String.join(",", quantizationCodes));
+		return centerClient.getRealTimeDatas(String.join(",", quantizationCodes));
 	}
 	
 	
@@ -129,14 +122,14 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		return null;
 	}
 
-	public List<QuantizationRealtimeInfo> assembleDatas(Map<String, RemoteQuantization> remoteQuantizationMap, List<QuantizationDetailInfo> quantizations) {
+	public List<QuantizationRealtimeInfo> assembleDatas(Map<String, CenterQuantization> remoteQuantizationMap, List<QuantizationDetailInfo> quantizations) {
 		long start = System.currentTimeMillis();
 		List<QuantizationRealtimeInfo> viewList = new ArrayList<>();
 		for(int i=0; i<quantizations.size(); i++) {
 			QuantizationDetailInfo quantization = quantizations.get(i);//表对象
 			String quantizationCode = quantization.getQuantizationCode();
 			try {
-				RemoteQuantization remoteQuantization = remoteQuantizationMap.get(quantizationCode);//远程对象
+				CenterQuantization remoteQuantization = remoteQuantizationMap.get(quantizationCode);//远程对象
 				QuantizationRealtimeInfo realtimeInfo = new QuantizationRealtimeInfo();//组装对象
 				realtimeInfo.setQuantizationCode(quantizationCode);
 				realtimeInfo.setQuantizationName(quantization.getQuantizationName());
@@ -208,15 +201,6 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		}
 		quantizationMapper.updateQuantization(quantization);
 		log.info("quantizationCode:{}, {}.", quantizationCode, sb.toString());
-	}
-
-	@Override
-	public void switchSource() {
-		if(Constants.REMOTE_SERVICE_TENCENT.equals(quantizationContext.REMOVE_SERVICE)) {
-			quantizationContext.REMOVE_SERVICE = Constants.REMOTE_SERVICE_SINA;
-		}else {
-			quantizationContext.REMOVE_SERVICE = Constants.REMOTE_SERVICE_TENCENT;
-		}
 	}
 
 }

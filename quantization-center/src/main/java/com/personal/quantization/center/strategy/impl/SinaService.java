@@ -1,4 +1,4 @@
-package com.personal.quantization.strategy.impl;
+package com.personal.quantization.center.strategy.impl;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -12,19 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.personal.quantization.center.strategy.CenterService;
 import com.personal.quantization.enums.RemoteDataPrefixEnum;
 import com.personal.quantization.enums.StockTypeEnum;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationSource;
-import com.personal.quantization.model.RemoteQuantization;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.TbStock;
-import com.personal.quantization.strategy.RemoteService;
 
 /**
  * Sina接口服务
  */
 @Service
-public class SinaService extends RemoteService {
+public class SinaService extends CenterService {
 
 	private final Logger logger = LoggerFactory.getLogger(SinaService.class);
 	
@@ -45,13 +45,13 @@ public class SinaService extends RemoteService {
 	 * @param response
 	 * @return
 	 */
-	public Map<String, RemoteQuantization> transferToMap(String response){
+	public Map<String, CenterQuantization> transferToMap(String response){
 		if(response!=null && response.contains(";")) {
 			String[] responseArray = response.split("\n");
-			Map<String, RemoteQuantization> remoteDataInfoMap = new HashMap<>();
+			Map<String, CenterQuantization> remoteDataInfoMap = new HashMap<>();
 			for(int i=0; i< responseArray.length; i++) {
 				try {
-					RemoteQuantization remote = new RemoteQuantization();
+					CenterQuantization remote = new CenterQuantization();
 					String[] datas = responseArray[i].split(",");  //每条数据
 					String[] market = datas[0].split("=\"");
 					String codeStr = market[0];

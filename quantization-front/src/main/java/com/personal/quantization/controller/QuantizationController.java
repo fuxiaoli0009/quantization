@@ -38,11 +38,4 @@ public class QuantizationController {
     	quantizationService.updateQuantization(column, quantizationCode, value);
     }
 	
-	@ApiOperation(value = "切换渠道", httpMethod = "GET")
-    @RequestMapping(value = "/switch", method = RequestMethod.GET)
-    public String switchSource(){
-		quantizationService.switchSource();
-		return "切换渠道成功";
-	}
-	
 }

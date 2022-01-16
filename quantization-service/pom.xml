@@ -7,6 +7,13 @@
   </parent>
   <artifactId>quantization-service</artifactId>
   <dependencies>
+	<dependency>
+	    <groupId>com.personal.quantization</groupId>
+	    <artifactId>quantization-center-api</artifactId>
+	    <version>0.0.1-SNAPSHOT</version>
+	    <scope>system</scope>
+	    <systemPath>${project.basedir}/src/main/resources/lib/quantization-center-api-0.0.1-SNAPSHOT.jar</systemPath><!--路径-->
+	</dependency>
   	<dependency>
   		<groupId>com.personal.quantization</groupId>
   		<artifactId>quantization-beans</artifactId>
@@ -18,38 +25,41 @@
   		<version>0.0.1-SNAPSHOT</version>
   	</dependency>
   	<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <optional>true</optional>
-        </dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <optional>true</optional>
+    </dependency>
   	<dependency>
-  		<groupId>com.personal.quantization</groupId>
-  		<artifactId>quantization-remote</artifactId>
-  		<version>0.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-			<groupId>org.mybatis.spring.boot</groupId>
-			<artifactId>mybatis-spring-boot-starter</artifactId>
+		<groupId>org.mybatis.spring.boot</groupId>
+		<artifactId>mybatis-spring-boot-starter</artifactId>
 	</dependency>
 	<dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis</artifactId>
     </dependency>
     <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
     </dependency>
   	<dependency>
-    		<groupId>org.apache.ibatis</groupId>
-    		<artifactId>ibatis-core</artifactId>
+  		<groupId>org.apache.ibatis</groupId>
+  		<artifactId>ibatis-core</artifactId>
 	</dependency>
 	<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
 	</dependency>
 	<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-		</dependency>	
+		<groupId>com.alibaba</groupId>
+		<artifactId>fastjson</artifactId>
+	</dependency>
+	<dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <dependency>
+		<groupId>commons-lang</groupId>
+		<artifactId>commons-lang</artifactId>
+	</dependency>
   </dependencies>
 </project>

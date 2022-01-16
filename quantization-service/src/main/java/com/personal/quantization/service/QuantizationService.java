@@ -7,8 +7,6 @@ public interface QuantizationService {
 	public void updateQuantization(String tdIndex, String quantizationCode, String value);
 	
 	
-	public void switchSource();
-
 	public String selectQuantizationsBySource(String sources);
 
 }

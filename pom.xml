@@ -16,10 +16,10 @@
   	<module>quantization-front</module>
     <module>quantization-service</module>
     <module>quantization-common</module>
-    <module>quantization-remote</module>
     <module>quantization-gateway</module>
     <module>quantization-auth</module>
     <module>quantization-center</module>
+    <module>quantization-center-api</module>
   </modules>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

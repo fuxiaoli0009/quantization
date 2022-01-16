@@ -1,10 +1,10 @@
-package com.personal.quantization.context;
+package com.personal.quantization.center.context;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class QuantizationContext {
+public class CenterContext {
 
 	@Value("${remote.service:tencentService}")
 	public String REMOVE_SERVICE;

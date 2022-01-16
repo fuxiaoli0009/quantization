@@ -1,9 +1,9 @@
-package com.personal.quantization.strategy;
+package com.personal.quantization.center.strategy;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
-public abstract class RemoteService extends AbstractRemoteServiceStrategy {
+public abstract class CenterService extends AbstractCenterServiceStrategy {
 	
 	@Autowired(required=true)
 	RestTemplate restTemplate;
