@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="application.name" source="spring.application.name"/>
+    <springProperty scope="context" name="logstash.destination" source="logstash.destination"/>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">    
+        <encoder>    
+            <pattern>%d %p [%t] (%file:%line\)- %m%n</pattern>  
+            <charset>UTF-8</charset>   
+        </encoder>    
+    </appender>
+    
+    <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
+    	<param name="Encoding" value="UTF-8"/>
+		<destination>101.43.110.173:37370</destination>
+		<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" >
+ 			<customFields>{"appname":"${application.name}"}</customFields>
+		</encoder>
+	</appender>     
+	
+    <appender name="demolog" class="ch.qos.logback.core.rolling.RollingFileAppender">    
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">    
+            <fileNamePattern>logs/quantization_knowledge.%d.log</fileNamePattern> 
+            <maxHistory>180</maxHistory>   
+        </rollingPolicy>    
+        <encoder>    
+            <pattern>    
+                %d - %m%n  
+            </pattern>    
+            <charset>UTF-8</charset>
+        </encoder>    
+    </appender>    
+    <root level="info">    
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="stash"/>
+        <appender-ref ref="demolog"/>
+    </root>    
+</configuration> 

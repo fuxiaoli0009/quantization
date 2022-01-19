@@ -20,6 +20,7 @@
     <module>quantization-auth</module>
     <module>quantization-center</module>
     <module>quantization-center-api</module>
+    <module>quantization-knowledge</module>
   </modules>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

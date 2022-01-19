@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personal.quantization.knowledge.mapper.GoodsMapper">
+  
+  	<resultMap id="BaseResultMap" type="com.personal.quantization.knowledge.dto.GoodsEntity">
+    	<result column="id" jdbcType="INTEGER" property="id"  />
+    	<result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+    	<result column="stock" jdbcType="INTEGER" property="stock"/>
+    	<result column="add_time" jdbcType="TIMESTAMP" property="addTime"/>
+    	<result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+   		<result column="version" jdbcType="INTEGER" property="version"/>
+    </resultMap>
+    
+    <resultMap id="BaseResultMap2" type="com.personal.quantization.knowledge.dto.OrderEntity">
+	    <result column="id" jdbcType="INTEGER" property="id"  />
+	    <result column="goods_name" jdbcType="VARCHAR" property="goodsName" />
+	    <result column="add_time" jdbcType="TIMESTAMP" property="addTime"/>
+	    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select * from goods where id= #{id,jdbcType=INTEGER}
+    </select>
+
+    <update id="updateStick" parameterType="com.personal.quantization.knowledge.dto.GoodsEntity">
+        update goods set goods_name=#{goodsName,jdbcType=VARCHAR},stock=#{stock,jdbcType=INTEGER},version=version+1,update_time=#{updateTime,jdbcType=TIMESTAMP} where version=#{version,jdbcType=INTEGER} AND id=#{id,jdbcType=INTEGER}
+    </update>
+  
+    <insert id="insert" parameterType="com.personal.quantization.knowledge.dto.OrderEntity">
+        insert into `order`(goods_name,add_time,update_time) value
+        (#{goodsName,jdbcType=VARCHAR},#{addTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+</mapper>
