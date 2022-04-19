@@ -27,7 +27,15 @@
     </update>
   
     <insert id="insert" parameterType="com.personal.quantization.knowledge.dto.OrderEntity">
-        insert into `order`(goods_name,add_time,update_time) value
-        (#{goodsName,jdbcType=VARCHAR},#{addTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP})
+        insert into `order`(goods_name,add_time,update_time, thread_name) value
+        (#{goodsName,jdbcType=VARCHAR},#{addTime,jdbcType=TIMESTAMP},#{updateTime,jdbcType=TIMESTAMP},#{threadName})
+    </insert>
+    
+    <insert id="insertOrder" parameterType="com.personal.quantization.knowledge.dto.OrderEntity">
+        insert into `order`(goods_name,add_time,update_time, thread_name) value
+        (#{productId,jdbcType=VARCHAR},
+        now(),
+        now(),
+        #{threadName})
     </insert>
 </mapper>

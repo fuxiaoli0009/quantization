@@ -9,12 +9,7 @@ import com.personal.quantization.knowledge.service.GoodsService;
 
 import io.swagger.annotations.ApiOperation;
 
-/**
- * 【秒杀商品：springboot+mybatis实现乐观锁】
- *  参考：https://blog.csdn.net/weixin_45031612/article/details/108364789
- * @author fuxiaoli
- *
- */
+
 @RestController
 @RequestMapping("/goods")
 public class GoodsController {
@@ -23,12 +18,28 @@ public class GoodsController {
     private GoodsService goodsService;
 
     /**
+     * 【TCC实现分布式事务：下订单、减库存】
+     *  参考：https://blog.csdn.net/weixin_45031612/article/details/108364789
+     * @author fuxiaoli
+     *
+     */
+    @ApiOperation(value = "pay", httpMethod = "GET")
+    @RequestMapping(value = "/pay", method = RequestMethod.GET)
+    public void pay(){
+        goodsService.pay();
+    }
+    
+    /**
+     * 【秒杀商品：springboot+mybatis实现乐观锁】
      * 下单操作
+     *  参考：https://blog.csdn.net/weixin_45031612/article/details/108364789
+     * @author fuxiaoli
+     *
      */
     @ApiOperation(value = "submitOrder", httpMethod = "GET")
     @RequestMapping(value = "/submitOrder", method = RequestMethod.GET)
     public Object submitOrder(Integer id){
         return goodsService.submit(id);
     }
-    
+
 }

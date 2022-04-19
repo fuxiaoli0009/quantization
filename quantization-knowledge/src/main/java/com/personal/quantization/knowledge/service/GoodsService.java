@@ -13,4 +13,6 @@ public interface GoodsService {
      * 插入订单
      */
     public int insert(OrderEntity orderEntity);
+
+	public void pay();
 }
