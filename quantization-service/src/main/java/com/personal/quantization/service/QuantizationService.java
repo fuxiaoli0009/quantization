@@ -6,7 +6,14 @@ public interface QuantizationService {
 
 	public void updateQuantization(String tdIndex, String quantizationCode, String value);
 	
+	public void getQuantizationHistoryDetails();
+
 	
 	public String selectQuantizationsBySource(String sources);
+
+	public String calculateIndex();
+
+	public String getIndex();
+
 
 }

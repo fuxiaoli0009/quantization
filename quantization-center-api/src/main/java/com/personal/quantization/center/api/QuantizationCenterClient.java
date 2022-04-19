@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.personal.quantization.model.QuantizationDetailInfo;
+import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationSource;
 import com.personal.quantization.model.CenterQuantization;
 
@@ -22,4 +23,7 @@ public interface QuantizationCenterClient {
 	
 	@RequestMapping(method=RequestMethod.POST, value="/getRealTimeDatas")
 	String getRealTimeDatas(String quantizationCodes);
+	
+	@RequestMapping(method=RequestMethod.POST, value="/getQuantizationHistoryDetails")
+	List<QuantizationHistoryDetail> getQuantizationHistoryDetails(List<String> quantizationCodes);
 }

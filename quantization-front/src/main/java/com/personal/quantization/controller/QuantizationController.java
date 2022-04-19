@@ -38,4 +38,23 @@ public class QuantizationController {
     	quantizationService.updateQuantization(column, quantizationCode, value);
     }
 	
+	@ApiOperation(value = "获取历史数据【该接口需要改为定时任务，定时获取历史数据】", httpMethod = "GET")
+    @RequestMapping(value = "/getQuantizationHistoryDetails", method = RequestMethod.GET)
+    public void getQuantizationHistoryDetails() {
+    	quantizationService.getQuantizationHistoryDetails();
+    }
+	
+	@ApiOperation(value = "计算真实值，并保存mongo", httpMethod = "GET")
+    @RequestMapping(value = "/calculateIndex", method = RequestMethod.GET)
+    public String calculateIndex() {
+    	return quantizationService.calculateIndex();
+    }
+	
+	@ApiOperation(value = "从mongo查询真实值", httpMethod = "GET")
+    @RequestMapping(value = "/getIndex", method = RequestMethod.GET)
+    public String getIndex() {
+    	return quantizationService.getIndex();
+    }
+	
+	
 }

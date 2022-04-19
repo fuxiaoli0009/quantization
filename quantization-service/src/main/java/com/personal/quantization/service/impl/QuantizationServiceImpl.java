@@ -1,10 +1,12 @@
 package com.personal.quantization.service.impl;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,9 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +34,13 @@ import com.personal.quantization.enums.QuantizationSourceEnum;
 import com.personal.quantization.mapper.QuantizationMapper;
 import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
+import com.personal.quantization.model.QuantizationHistoryDetail;
+import com.personal.quantization.model.QuantizationIndexValues;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
+import com.personal.quantization.model.QuantizationValue;
+import com.personal.quantization.model.QuantizationValueDetail;
 import com.personal.quantization.service.QuantizationService;
+import com.personal.quantization.utils.DateUtils;
 import com.personal.quantization.utils.QuantizationUtil;
 
 import lombok.extern.slf4j.Slf4j;
@@ -39,8 +49,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QuantizationServiceImpl implements QuantizationService, InitializingBean {
 	
+	private static final String QUANTIZATION_SOURCE = "quantization_source";
+	
 	@Autowired
     private RedisTemplate<String, String> redisTemplate;
+	
+	@Autowired
+	private MongoTemplate mongoTemplate;
 	
 	@Autowired
 	QuantizationCenterClient centerClient;
@@ -117,6 +132,74 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		return centerClient.getRealTimeDatas(String.join(",", quantizationCodes));
 	}
 	
+	@Override
+	public void getQuantizationHistoryDetails() {
+		
+		List<String> source = new ArrayList<>();
+		source.add(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource());
+		List<QuantizationDetailInfo> quantizations = quantizationMapper.queryQuantizationsBySelectedStatus(source);
+		List<String> quantizationCodes = new ArrayList<>();
+		quantizations.stream().forEach(quantization -> quantizationCodes.add(Constants.HIS_DATA_PRE + quantization.getQuantizationCode()));
+		List<QuantizationHistoryDetail> historys = centerClient.getQuantizationHistoryDetails(quantizationCodes);
+		historys.stream().forEach(detail -> {
+			String code = detail.getCode().substring(3);
+			detail.setCode(code);
+			detail.setId(code);
+			detail.setQuantizationSource(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource());
+		});
+		mongoTemplate.insert(historys, QuantizationHistoryDetail.class);
+		log.info("批量插入Mongodb完成。");
+	}
+	
+	@Override
+	public String calculateIndex() {
+		Query query = new Query();
+		query.addCriteria(Criteria.where(QUANTIZATION_SOURCE).is(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource()));
+		List<QuantizationHistoryDetail> details = mongoTemplate.find(query, QuantizationHistoryDetail.class);
+		BigDecimal hundred = new BigDecimal(100);
+		BigDecimal totalValue = new BigDecimal(0);
+		QuantizationIndexValues quantizationValues = new QuantizationIndexValues();
+		QuantizationValueDetail valueDetail = new QuantizationValueDetail();
+		List<QuantizationValueDetail> valueDetailList = new ArrayList<>();
+		List<QuantizationValue> quantizationValueList = new ArrayList<>();
+		for(QuantizationHistoryDetail detail : details) {
+			List<List<String>> datas = detail.getHq();
+			BigDecimal cal = new BigDecimal(1);
+			QuantizationValue quantizationValue = new QuantizationValue();
+			for(List<String> data : datas) {
+				BigDecimal riseRate = new BigDecimal(data.get(4).replace("%",""));
+				BigDecimal result = hundred.add(riseRate).divide(new BigDecimal(100));
+				cal = cal.multiply(result);
+			}
+			totalValue = totalValue.add(cal);
+			quantizationValue.setQuantizationCode(detail.getCode());
+			quantizationValue.setQuantizationValue(cal);
+			quantizationValueList.add(quantizationValue);
+		}
+		valueDetail.setIndexValue(totalValue.divide(new BigDecimal(details.size()), 10, RoundingMode.HALF_UP).multiply(new BigDecimal(1000)).setScale(8, BigDecimal.ROUND_HALF_UP));
+		valueDetail.setQuantizationSource(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource());
+		valueDetail.setQuantizationValues(quantizationValueList);
+		Date date = new Date();
+		valueDetailList.add(valueDetail);
+		quantizationValues.setDetail(valueDetailList);
+		quantizationValues.setId(DateUtils.getDate(date));
+		quantizationValues.setDate(date);
+		mongoTemplate.save(quantizationValues);
+		log.info("保存indexvalue到mongo。");
+		return valueDetail.getIndexValue().toString();
+	}
+	
+	@Override
+	public String getIndex() {
+		List<QuantizationIndexValues> list = mongoTemplate.find(new Query(), QuantizationIndexValues.class);
+		List<QuantizationValueDetail> values = list.get(0).getDetail();
+		for(QuantizationValueDetail detail : values) {
+			if(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource().equals(detail.getQuantizationSource())) {
+				return detail.getIndexValue().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+			}
+		}
+		return null;
+	}
 	
 	public List<QuantizationRealtimeInfo> getQuantizationRealtimeInfo(String type){
 		return null;

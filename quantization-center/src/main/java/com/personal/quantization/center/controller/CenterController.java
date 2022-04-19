@@ -14,6 +14,7 @@ import com.personal.quantization.center.context.CenterContext;
 import com.personal.quantization.center.strategy.CenterService;
 import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
+import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationSource;
 
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ public class CenterController {
 	
 	@Autowired
     public void Test(Map<String, CenterService> centerServiceMap) {
+		log.info("for test.");
         this.centerService = centerServiceMap.get(context.REMOVE_SERVICE);
     }
 	
@@ -46,6 +48,11 @@ public class CenterController {
     @RequestMapping(value = "/getRealTimeDatas", method = RequestMethod.POST)
     public String getRealTimeDatas(@RequestBody String quantizationCodes) {
     	return centerService.getRealTimeDatas(quantizationCodes);
+	}
+    
+    @RequestMapping(value = "/getQuantizationHistoryDetails", method = RequestMethod.POST)
+    public List<QuantizationHistoryDetail> getQuantizationHistoryDetails(@RequestBody List<String> quantizationCodes) {
+		return centerService.getQuantizationHistoryDetails(quantizationCodes);
 	}
     
     

@@ -19,4 +19,6 @@ public class Constants {
 	public final static String QUANTIZATIONS_SOURCE_C = "quantizations_source_c";
 	
 	public final static String QUANTIZATIONS_SOURCE_E = "quantizations_source_e";
+	
+	public static final String HIS_DATA_PRE = "cn_";
 }

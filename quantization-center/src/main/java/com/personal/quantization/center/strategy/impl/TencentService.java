@@ -127,8 +127,6 @@ public class TencentService extends CenterService {
 		return null;
 	}
 	
-	
-
 	/**
 	 * 封装Tencent接口代码前缀
 	 * @param tbStocks

@@ -24,4 +24,5 @@ public class DateUtils {
 		calendar.set(Calendar.DATE, calendar.get(Calendar.DATE) - 1);
 		return calendar.getTime();
 	}
+	
 }
