@@ -21,4 +21,6 @@ public class Constants {
 	public final static String QUANTIZATIONS_SOURCE_E = "quantizations_source_e";
 	
 	public static final String HIS_DATA_PRE = "cn_";
+	
+	public static final String RATE_LIMIT_KEY = "rateLimit:";
 }
