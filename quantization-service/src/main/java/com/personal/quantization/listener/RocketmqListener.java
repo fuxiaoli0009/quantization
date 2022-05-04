@@ -1,4 +1,4 @@
-package com.personal.quantization.controller;
+package com.personal.quantization.listener;
 
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
@@ -8,8 +8,8 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@RocketMQMessageListener(topic = "quantization-topic",consumerGroup = "quantization-front-group")
-public class RocketmqTestController implements RocketMQListener<String> {
+@RocketMQMessageListener(topic = "quantization-topic-test",consumerGroup = "quantization-front-group")
+public class RocketmqListener implements RocketMQListener<String> {
 
     @Override
     public void onMessage(String message) {
