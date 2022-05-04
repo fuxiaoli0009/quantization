@@ -12,9 +12,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @MapperScan("com.personal.quantization.mapper")
 @EnableScheduling
 @EnableFeignClients(basePackages = "com.personal.quantization.center.api")
-public class QuantizationApplication {
+public class QuantizationFrontApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(QuantizationApplication.class, args);
+		SpringApplication.run(QuantizationFrontApplication.class, args);
 	}
 }

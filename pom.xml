@@ -16,12 +16,12 @@
   	<module>quantization-front</module>
     <module>quantization-service</module>
     <module>quantization-common</module>
-    <module>quantization-gateway</module>
-    <module>quantization-auth</module>
+    
     <module>quantization-center</module>
     <module>quantization-center-api</module>
-    <module>quantization-knowledge</module>
-    <module>quantization-inventory</module>
+    
+    
+    
   </modules>
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -48,6 +48,7 @@
         <springboot.test.version>2.3.0.RELEASE</springboot.test.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <rocketmq.version>2.2.2</rocketmq.version>
+        <druid.version>1.1.12</druid.version>
 	</properties>
     <dependencyManagement>
 	<dependencies>
@@ -115,7 +116,12 @@
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 		</dependency>
-
+		<!--druid连接池-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>${druid.version}</version>
+        </dependency>
 		<dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>

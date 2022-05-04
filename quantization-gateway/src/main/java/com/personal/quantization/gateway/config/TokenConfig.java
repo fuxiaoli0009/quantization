@@ -1,29 +1,37 @@
-/*
- * package com.personal.quantization.gateway.config;
- * 
- * import org.springframework.context.annotation.Bean; import
- * org.springframework.context.annotation.Configuration; import
- * org.springframework.security.oauth2.provider.token.TokenStore; import
- * org.springframework.security.oauth2.provider.token.store.
- * JwtAccessTokenConverter; import
- * org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
- * 
- *//**
-	 * @author Administrator
-	 * @version 1.0
-	 **//*
-		 * @Configuration public class TokenConfig {
-		 * 
-		 * private String SIGNING_KEY = "uaa123";
-		 * 
-		 * @Bean public TokenStore tokenStore() { //JWT令牌存储方案 return new
-		 * JwtTokenStore(accessTokenConverter()); }
-		 * 
-		 * @Bean public JwtAccessTokenConverter accessTokenConverter() {
-		 * JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-		 * converter.setSigningKey(SIGNING_KEY); //对称秘钥，资源服务器使用该秘钥来验证 return converter;
-		 * }
-		 * 
-		 * public TokenStore tokenStore() { //使用内存存储令牌（普通令牌） return new
-		 * InMemoryTokenStore(); } }
-		 */
+package com.personal.quantization.gateway.config;
+
+import org.apache.commons.io.IOUtils;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+
+import java.io.IOException;
+
+@Configuration
+public class TokenConfig {
+
+    @Bean
+    public JwtAccessTokenConverter jwtAccessTokenConverter() {
+        JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
+        // 非对称加密，资源服务器使用公钥解密 public.txt
+        ClassPathResource resource = new ClassPathResource("public.txt");
+        String publicKey = null;
+        try {
+            publicKey = IOUtils.toString(resource.getInputStream(), "UTF-8");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        converter.setVerifierKey(publicKey);
+        return converter;
+    }
+
+    @Bean
+    public TokenStore tokenStore() {
+        // Jwt管理令牌
+        return new JwtTokenStore(jwtAccessTokenConverter());
+    }
+
+}

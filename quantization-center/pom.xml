@@ -47,11 +47,26 @@
         <groupId>org.apache.rocketmq</groupId>
         <artifactId>rocketmq-spring-boot-starter</artifactId>
     </dependency>
+    <!-- Spring Security、OAuth2 和JWT等 -->
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-starter-oauth2</artifactId>
+    </dependency>
     <dependency>
 		<groupId>io.springfox</groupId>
 		<artifactId>springfox-swagger2</artifactId>
 	</dependency>
-	
+	<!-- thymeleaf 模块启动器-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        <version>2.2.2.RELEASE</version>
+    </dependency>
+    <!--对Thymeleaf添加Spring Security标签支持-->
+    <dependency>
+        <groupId>org.thymeleaf.extras</groupId>
+        <artifactId>thymeleaf-extras-springsecurity5</artifactId>
+    </dependency>
 	<dependency>
 		<groupId>io.springfox</groupId>
 		<artifactId>springfox-swagger-ui</artifactId>
