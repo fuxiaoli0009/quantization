@@ -63,8 +63,8 @@
 			AND min_value > 0 
 		) tmp 
 	WHERE
-		incri &lt; 0.2*100 AND decri > 0.78*100 
-		AND pb &lt; 4 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
+		incri &lt; 0.15*100 AND decri > 0.75*100 
+		AND pb &lt; 2.8 AND pb > 0 AND (pe > 0 and pe &lt; 50 )
 		AND instr(quantization_name, 'ST') =0
 	ORDER BY
 		( decri - incri ) DESC
@@ -101,8 +101,8 @@
 			selected_status IN ( '1', '2' ) 
 		) tmp 
 	WHERE
-		incri &lt; 0.25*100 AND decri > 0.78*100 
-		AND pb &lt; 5 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
+		incri &lt; 0.15*100 AND decri > 0.75*100 
+		AND pb &lt; 2.8 AND pb > 0 AND (pe > 0 and pe &lt; 50 )
 		AND instr(quantization_name, 'ST') =0
 	UNION ALL
 	SELECT
