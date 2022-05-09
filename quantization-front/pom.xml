@@ -81,10 +81,10 @@
         <version>2.2.2.RELEASE</version>
     </dependency>
     <!--对Thymeleaf添加Spring Security标签支持-->
-    <dependency>
+    <!-- <dependency>
         <groupId>org.thymeleaf.extras</groupId>
         <artifactId>thymeleaf-extras-springsecurity5</artifactId>
-    </dependency>
+    </dependency>-->
   </dependencies>
 
   <build>
@@ -93,7 +93,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.personal.quantization.QuantizationFrontApplication</mainClass>
+                    <mainClass>com.personal.quantization.FrontApplication</mainClass>
                     <includeSystemScope>true</includeSystemScope>
                 </configuration>
                 <executions>
