@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -36,6 +37,7 @@ import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationIndexValues;
+import com.personal.quantization.model.QuantizationInfo;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
 import com.personal.quantization.model.QuantizationValue;
 import com.personal.quantization.model.QuantizationValueDetail;
@@ -65,6 +67,9 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	
 	@Resource(name = "myDataThreadPool")
 	private ExecutorService executorService;
+	
+	@Value("${spring.profiles.active}")
+	private String PROFILE_ACTIVE;
 	
 	@Override
 	public void afterPropertiesSet() throws Exception {
@@ -102,6 +107,18 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		List<QuantizationDetailInfo> quantizations = quantizationMapper.queryQuantizationsBySelectedStatus(source);
 		List<QuantizationRealtimeInfo> hsQuantizations = getQuantizationRealtimeInfo(quantizations, QuantizationSourceEnum.QUANTIZATION_SOURCE_SH.getSource()+QuantizationSourceEnum.QUANTIZATION_SOURCE_SZ.getSource());
 		long start2 = System.currentTimeMillis();
+		if("dev".equals(PROFILE_ACTIVE)) {
+			List<QuantizationInfo> infos = new ArrayList<>();
+			hsQuantizations.forEach(realtimeInfo -> {
+				QuantizationInfo info = new QuantizationInfo();
+				info.setQuantizationCode(Integer.valueOf(realtimeInfo.getQuantizationCode()));
+				info.setQuantizationName(realtimeInfo.getQuantizationName());
+				infos.add(info);
+			});
+			executorService.execute(()->{
+				quantizationMapper.insertQuantizationInfo(infos);
+			});
+		}
 		Collections.sort(hsQuantizations);
 		maps.put("result", hsQuantizations);
 		log.info("查询数据耗时：{}", System.currentTimeMillis() - start2);

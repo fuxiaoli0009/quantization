@@ -5,6 +5,7 @@ import java.util.List;
 import org.apache.ibatis.annotations.Param;
 
 import com.personal.quantization.model.QuantizationDetailInfo;
+import com.personal.quantization.model.QuantizationInfo;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
 import com.personal.quantization.model.QuantizationSource;
 
@@ -35,4 +36,6 @@ public interface QuantizationMapper {
 	public void updateSelectedStatus(@Param("quantizationCode") String quantizationCode, @Param("selectedStatus") String selectedStatus);
 
 	public void add(String string);
+
+	public void insertQuantizationInfo(@Param("hsQuantizations") List<QuantizationInfo> hsQuantizations);
 }

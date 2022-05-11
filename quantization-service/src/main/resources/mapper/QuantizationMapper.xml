@@ -43,7 +43,13 @@
   
   <select id="selectQuantizations" resultType="com.personal.quantization.model.QuantizationDetailInfo">
   	SELECT
-		*,
+		quantization_code,
+		quantization_name,
+		incri,
+		decri,
+		pb,
+		pe,
+		classify,
 		(decri - incri) as diffValue
 	FROM
 		(
@@ -83,7 +89,14 @@
   
   <select id="selectQuantizationsByClassify" resultType="com.personal.quantization.model.QuantizationDetailInfo">
     SELECT
-		* 
+		quantization_code,
+		quantization_name,
+		incri,
+		decri,
+		pb,
+		pe,
+		classify,
+		selected_status
 	FROM
 		(
 		SELECT
@@ -181,5 +194,13 @@
   
   <insert id="add" parameterType="com.personal.quantization.model.QuantizationRealtimeInfo">
     insert into quantization_realtime_info (quantization_code) values(#{quantizationCode})
+  </insert>
+  
+  <insert id="insertQuantizationInfo" parameterType="com.personal.quantization.model.QuantizationInfo">
+  	insert into quantization_info(quantization_code, quantization_name) values
+  	<foreach collection="hsQuantizations" index="index" item="item" separator=",">
+  	(#{item.quantizationCode}, #{item.quantizationName}
+  	)
+  	</foreach>
   </insert>
 </mapper>

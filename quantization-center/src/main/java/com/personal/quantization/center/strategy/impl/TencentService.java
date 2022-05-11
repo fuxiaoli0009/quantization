@@ -48,7 +48,7 @@ public class TencentService extends CenterService {
 	public String getRealTimeDatas(String quantizationCodes) {
 		long start = System.currentTimeMillis();
 		String result = getRealTimeDatas(quantizationCodes, REMOTE_URL_TENCENT);
-		log.info("quantizationCodes: {}, quantizationCodes耗时：{}", quantizationCodes, System.currentTimeMillis() - start);
+		log.info("调用Tecent接口查询quantizationCodes耗时：{}，quantizationCodes: {}", System.currentTimeMillis() - start, quantizationCodes);
 		return result;
 	}
 	
