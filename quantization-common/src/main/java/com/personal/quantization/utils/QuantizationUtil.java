@@ -1,5 +1,6 @@
 package com.personal.quantization.utils;
 
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.StringUtils;
 
 import com.personal.quantization.enums.QuantizationEnum;
 import com.personal.quantization.enums.QuantizationSourceEnum;
@@ -19,6 +22,8 @@ import net.sf.cglib.beans.BeanMap;
  * @Date: 2018/4/6
  **/
 public class QuantizationUtil {
+	
+	private static DecimalFormat df = new DecimalFormat("######0.00");
 
 	public static List<String> transferToACodes(List<QuantizationDetailInfo> quantizations) {
 		List<String> quantizationCodes = new ArrayList<>();
@@ -40,6 +45,13 @@ public class QuantizationUtil {
 			quantizationCodes.add(sb.toString());
 		}
 		return quantizationCodes;
+	}
+	
+	public static String getTwoPointDouble(String data) {
+		if(StringUtils.isNotEmpty(data)) {
+			return df.format(Double.valueOf(data));
+		}
+		return "0.00";
 	}
 	
 	public static String transferToACodes(List<String> codes, String type) {

@@ -16,6 +16,12 @@ public class CenterQuantization {
 	
 	public String ratePercent;
 	
-	public Long turnOver; //成交额-元
+	public String turnoverRate;
+	
+	public Double circulationMarketValue;
+	
+	public Double totalMarketValue;
+	
+	public Long turnOver;
 
 }

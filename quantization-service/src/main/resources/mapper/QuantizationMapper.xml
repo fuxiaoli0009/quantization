@@ -50,23 +50,39 @@
 		pb,
 		pe,
 		classify,
-		(decri - incri) as diffValue
+		debt_ratio,
+		good_will,
+		(decri - incri) as diffValue,
+		retained_profits_2016, 
+		retained_profits_2017, 
+		retained_profits_2018, 
+    	retained_profits_2019, 
+    	retained_profits_2020, 
+    	retained_profits_2021
 	FROM
 		(
 		SELECT
-			quantization_code,
-			quantization_name,
-			round(( real_time / min_value - 1 ), 4)*100 AS incri,
-			round(( 1- real_time / max_value ), 4)*100 AS decri,
-			pb,
-			pe,
-			classify
+			qri.quantization_code,
+			qri.quantization_name,
+			round(( qri.real_time / qri.min_value - 1 ), 4)*100 AS incri,
+			round(( 1- qri.real_time / qri.max_value ), 4)*100 AS decri,
+			qri.pb,
+			qri.pe,
+			qri.debt_ratio,
+			qri.good_will,
+			qri.classify,
+			fd.retained_profits_2016, 
+			fd.retained_profits_2017, 
+			fd.retained_profits_2018, 
+    	    fd.retained_profits_2019, 
+    	    fd.retained_profits_2020, 
+    	    fd.retained_profits_2021
 		FROM
-			quantization_realtime_info 
+			quantization_realtime_info qri left join finance_data fd on qri.quantization_code = fd.quantization_code
 		WHERE
-			selected_status in ('0', '1') 
-			AND real_time > 0 
-			AND min_value > 0 
+			qri.selected_status in ('0', '1') 
+			AND qri.real_time > 0 
+			AND qri.min_value > 0 
 		) tmp 
 	WHERE
 		incri &lt; 0.15*100 AND decri > 0.75*100 
@@ -96,22 +112,38 @@
 		pb,
 		pe,
 		classify,
-		selected_status
+		debt_ratio,
+		good_will,
+		selected_status,
+		retained_profits_2016, 
+		retained_profits_2017, 
+		retained_profits_2018, 
+    	retained_profits_2019, 
+    	retained_profits_2020, 
+    	retained_profits_2021
 	FROM
 		(
 		SELECT
-			quantization_code,
-			quantization_name,
-			round(( real_time / min_value - 1 ), 4)*100 AS incri,
-			round(( 1- real_time / max_value ), 4)*100 AS decri,
-			pb,
-			pe,
-			classify,
-			selected_status 
+			qri.quantization_code,
+			qri.quantization_name,
+			round(( qri.real_time / qri.min_value - 1 ), 4)*100 AS incri,
+			round(( 1- qri.real_time / qri.max_value ), 4)*100 AS decri,
+			qri.pb,
+			qri.pe,
+			qri.classify,
+			qri.debt_ratio,
+			qri.good_will,
+			qri.selected_status,
+			fd.retained_profits_2016, 
+			fd.retained_profits_2017, 
+			fd.retained_profits_2018, 
+    	    fd.retained_profits_2019, 
+    	    fd.retained_profits_2020, 
+    	    fd.retained_profits_2021
 		FROM
-			quantization_realtime_info 
+			quantization_realtime_info qri left join finance_data fd on qri.quantization_code = fd.quantization_code
 		WHERE
-			selected_status IN ( '1', '2' ) 
+			qri.selected_status IN ( '1', '2' ) 
 		) tmp 
 	WHERE
 		incri &lt; 0.15*100 AND decri > 0.75*100 
@@ -119,18 +151,26 @@
 		AND instr(quantization_name, 'ST') =0
 	UNION ALL
 	SELECT
-			quantization_code,
-			quantization_name,
-			round(( real_time / min_value - 1 ), 4)*100 AS incri,
-			round(( 1- real_time / max_value ), 4)*100 AS decri,
-			pb,
-			pe,
-			classify,
-			selected_status 
-		FROM
-			quantization_realtime_info 
-		WHERE
-			selected_status IN ( '3' ) 
+		qri.quantization_code,
+		qri.quantization_name,
+		round(( qri.real_time / qri.min_value - 1 ), 4)*100 AS incri,
+		round(( 1- qri.real_time / qri.max_value ), 4)*100 AS decri,
+		qri.pb,
+		qri.pe,
+		qri.classify,
+		qri.debt_ratio,
+		qri.good_will,
+		qri.selected_status,
+		fd.retained_profits_2016, 
+		fd.retained_profits_2017, 
+		fd.retained_profits_2018, 
+   	    fd.retained_profits_2019, 
+   	    fd.retained_profits_2020, 
+   	    fd.retained_profits_2021
+	FROM
+		quantization_realtime_info  qri left join finance_data fd on qri.quantization_code = fd.quantization_code
+	WHERE
+			qri.selected_status IN ( '3' ) 
 	ORDER BY
 		classify,
 		( decri - incri ) DESC,
@@ -142,9 +182,13 @@
   </select>
   
   <select id="queryQuantizationsBySelectedStatus" parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationDetailInfo">
-    select quantization_code, quantization_name, max_value, min_value, pb, pe, classify, source, buy_price,classify
-    from quantization_realtime_info 
-    where selected_status = '1' and source in
+    select qri.quantization_code, qri.quantization_name, qri.max_value, qri.debt_ratio, qri.good_will, 
+    	   qri.min_value, qri.pb, qri.pe, qri.classify, qri.source, qri.buy_price,qri.classify,
+    	   fd.retained_profits_2016, fd.retained_profits_2017, fd.retained_profits_2018, 
+    	   fd.retained_profits_2019, fd.retained_profits_2020, fd.retained_profits_2021 
+    from quantization_realtime_info qri
+    left join finance_data fd on qri.quantization_code = fd.quantization_code
+    where qri.selected_status = '1' and qri.source in
     <foreach collection="sources" item="source" open="(" separator="," close=")">
 		#{source}
   	</foreach>

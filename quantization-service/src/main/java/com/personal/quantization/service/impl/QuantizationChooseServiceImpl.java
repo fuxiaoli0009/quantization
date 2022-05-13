@@ -14,6 +14,7 @@ import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
 import com.personal.quantization.model.QuantizationSource;
 import com.personal.quantization.service.QuantizationChooseService;
+import com.personal.quantization.utils.QuantizationUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,14 +52,35 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
 			size = quantizationMapper.udpateQuantizations(details);
 		}
 		log.info("量化待选中数量：{}", size);
-		details.stream().forEach(detail -> detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode()));
+		details.stream().forEach(detail -> {
+			detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode());
+			detail.setDebtRatio(QuantizationUtil.getTwoPointDouble(detail.getDebtRatio()));
+			detail.setGoodWill(QuantizationUtil.getTwoPointDouble(detail.getGoodWill()));
+			detail.setRetainedProfits2016(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2016()));
+			detail.setRetainedProfits2017(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2017()));
+			detail.setRetainedProfits2018(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2018()));
+			detail.setRetainedProfits2019(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2019()));
+			detail.setRetainedProfits2020(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2020()));
+			detail.setRetainedProfits2021(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2021()));
+			
+		});
 		return details;
 	}
 
 	@Override
 	public List<QuantizationDetailInfo> selectQuantizationsByClassify() {
 		List<QuantizationDetailInfo> details = quantizationMapper.selectQuantizationsByClassify();
-		details.stream().forEach(detail -> detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode()));
+		details.stream().forEach(detail -> { 
+		    detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode());
+		    detail.setDebtRatio(QuantizationUtil.getTwoPointDouble(detail.getDebtRatio()));
+			detail.setGoodWill(QuantizationUtil.getTwoPointDouble(detail.getGoodWill()));
+			detail.setRetainedProfits2016(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2016()));
+			detail.setRetainedProfits2017(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2017()));
+			detail.setRetainedProfits2018(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2018()));
+			detail.setRetainedProfits2019(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2019()));
+			detail.setRetainedProfits2020(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2020()));
+			detail.setRetainedProfits2021(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2021()));
+		});
 		return details;
 	}
 

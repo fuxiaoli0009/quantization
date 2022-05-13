@@ -17,45 +17,52 @@ public class QuantizationRealtimeInfo implements Comparable<QuantizationRealtime
 
     public Double sellPrice;
     
+    public String turnoverRate;
+	
+	public Double circulationMarketValue;
+	
+	public Double totalMarketValue;
+	
+	public String debtRatio;
+	
+	public String goodWill;
+    
     public Double pb;
     
     public Double pe;
     
     public String classify;
 
-    /**
-     * 5178前复权最高价
-     */
     public Double maxValue;
 
-    /**
-     * 5178前复权最低价
-     */
     public Double minValue;
     
     public Double buyRateDouble;
 
-    /**
-     * 买入还差
-     */
     public String buyRate;
 
-    /**
-     * 最高点已跌百分比
-     */
     public String maxRate;
     
     public String minRate;
 
-    /**
-     * 今日涨跌幅
-     */
     public String ratePercent;
 
     public String description;
 
     public String analysisURL;
-
+    
+    public String retainedProfits2016;
+    
+    public String retainedProfits2017;
+    
+    public String retainedProfits2018;
+    
+    public String retainedProfits2019;
+    
+    public String retainedProfits2020;
+    
+    public String retainedProfits2021;
+    
 	@Override
 	public int compareTo(QuantizationRealtimeInfo info) {
 		if(this.buyRateDouble > info.getBuyRateDouble()) {

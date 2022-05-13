@@ -17,6 +17,10 @@ public class QuantizationDetailInfo {
     
     public Double minValue;
     
+    public String goodWill;
+    
+    public String debtRatio;
+    
     public Double pb;
     
     public Double pe;
@@ -36,5 +40,17 @@ public class QuantizationDetailInfo {
     public Double decri;
     
     public String analysisURL;
+    
+    public String retainedProfits2016;
+    
+    public String retainedProfits2017;
+    
+    public String retainedProfits2018;
+    
+    public String retainedProfits2019;
+    
+    public String retainedProfits2020;
+    
+    public String retainedProfits2021;
     
 }

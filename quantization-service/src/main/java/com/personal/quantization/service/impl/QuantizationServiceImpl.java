@@ -234,20 +234,34 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 				realtimeInfo.setQuantizationCode(quantizationCode);
 				realtimeInfo.setQuantizationName(quantization.getQuantizationName());
 				realtimeInfo.setRealTime(-1D);
+				realtimeInfo.setGoodWill(QuantizationUtil.getTwoPointDouble(String.valueOf(quantization.getGoodWill()!=null?quantization.getGoodWill():0D)));
+				String debtRatisDouble = quantization.getDebtRatio();
+				if(debtRatisDouble!=null){
+					String debtRatisStr = QuantizationUtil.getTwoPointDouble(debtRatisDouble);
+					debtRatisStr = debtRatisStr.substring(0, debtRatisStr.indexOf('.')+3) + "%";
+					realtimeInfo.setDebtRatio(debtRatisStr);
+				}else {
+					realtimeInfo.setDebtRatio("0.00%");
+				}
 				realtimeInfo.setPb(quantization.getPb());
 				realtimeInfo.setPe(quantization.getPe());
 				realtimeInfo.setClassify(quantization.getClassify());
 				realtimeInfo.setAnalysisURL(Constants.PRE_ANALYSISURL + quantizationCode);
+				realtimeInfo.setRetainedProfits2016(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2016()));
+				realtimeInfo.setRetainedProfits2017(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2017()));
+				realtimeInfo.setRetainedProfits2018(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2018()));
+				realtimeInfo.setRetainedProfits2019(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2019()));
+				realtimeInfo.setRetainedProfits2020(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2020()));
+				realtimeInfo.setRetainedProfits2021(QuantizationUtil.getTwoPointDouble(quantization.getRetainedProfits2021()));
 				Double realTimePrice = 100D;
 				if(remoteQuantization!=null) {
 					realtimeInfo.setQuantizationName(remoteQuantization.getQuantizationName());
-					//实时价格
 					realTimePrice = remoteQuantization.getRealTimePrice()==0D?100D:remoteQuantization.getRealTimePrice();
 					realtimeInfo.setRealTime(realTimePrice);
 					realtimeInfo.setRatePercent(remoteQuantization.getRatePercent());
+					realtimeInfo.setTotalMarketValue(remoteQuantization.getTotalMarketValue());
 					Double buyPrice = quantization.getBuyPrice()==null?0.5D:quantization.getBuyPrice().doubleValue();
 					realtimeInfo.setBuyPrice(buyPrice);
-					//买入还差百分之几
 					NumberFormat nf = NumberFormat.getPercentInstance();
 					nf.setMinimumFractionDigits(2);
 					BigDecimal b1 = new BigDecimal(Double.toString(realTimePrice - buyPrice));
@@ -255,7 +269,6 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 					Double buyRate = b1.divide(b2, 4, BigDecimal.ROUND_HALF_UP).doubleValue();
 					realtimeInfo.setBuyRateDouble(buyRate);
 					realtimeInfo.setBuyRate(nf.format(buyRate));
-					//最高点已跌百分比
 					Double maxValue = quantization.getMaxValue()==null?200D:quantization.getMaxValue().doubleValue();
 					b1 = new BigDecimal(Double.toString(maxValue - realTimePrice));
 					b2 = new BigDecimal(Double.toString(maxValue));

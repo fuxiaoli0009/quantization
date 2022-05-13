@@ -103,11 +103,11 @@ public class TencentService extends CenterService {
 							remote.setQuantizationCode(strs[2]);
 							remote.setQuantizationName(strs[1]);
 							remote.setRealTimePrice(Double.parseDouble(strs[3]));
-							/*
-							 * if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_HK.getCode())) {
-							 * remote.setRatePercent(strs[32]+"%"); }else {
-							 * remote.setRatePercent(strs[5]+"%"); }
-							 */
+							String marketValueStr = strs[9];
+							if(marketValueStr!=null && marketValueStr.length()>0 && marketValueStr.indexOf('.')>0) {
+								marketValueStr = marketValueStr.substring(0, marketValueStr.indexOf(".")+3);
+								remote.setTotalMarketValue(Double.parseDouble(marketValueStr));
+							}
 							remote.setRatePercent(strs[5]+"%");
 							/*
 							 * if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_SH.getCode())||strs[0].
