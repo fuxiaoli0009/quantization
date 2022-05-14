@@ -25,7 +25,7 @@ public abstract class CenterService extends AbstractCenterServiceStrategy {
 	RestTemplate restTemplate;
 	
 	@Override
-	public String getRealTimeDatas(String quantizationCodes, String url) {
+	public String getRealTimeDatasFromRemote(String quantizationCodes, String url) {
 		return restTemplate.getForObject(url + quantizationCodes, String.class);
 	}
 

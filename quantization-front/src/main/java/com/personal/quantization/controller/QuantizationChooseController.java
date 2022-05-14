@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,14 +22,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class QuantizationChooseController {
 	
+	@Qualifier("quantizationChooseServiceProxy")
+	@Autowired
+	private QuantizationChooseService quantizationChooseService;
+	
 	@ApiOperation(value = "1、定时全量更新pbpe", httpMethod = "GET")
     @RequestMapping(value = "/updatePBPE", method = RequestMethod.GET)
     public Integer updatePBPE(){
 		return quantizationChooseService.updatePBPE();
 	}
-	
-	@Autowired
-	private QuantizationChooseService quantizationChooseService;
 	
 	@ApiOperation(value = "2、重新从选出待选中的", httpMethod = "GET")
     @RequestMapping(value = "/selectQuantizations", method = RequestMethod.GET)

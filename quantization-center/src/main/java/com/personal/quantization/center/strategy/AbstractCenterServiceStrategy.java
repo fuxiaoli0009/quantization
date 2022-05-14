@@ -11,7 +11,7 @@ public abstract class AbstractCenterServiceStrategy {
 	
 	public abstract String getRealTimeDatas(String quantizationCodes);
 
-	public abstract String getRealTimeDatas(String quantizationCodes, String url);
+	public abstract String getRealTimeDatasFromRemote(String quantizationCodes, String url);
 	
 	public abstract Map<String, CenterQuantization> transferToMap(String result);
 	

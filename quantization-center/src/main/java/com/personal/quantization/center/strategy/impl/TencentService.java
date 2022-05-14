@@ -39,7 +39,7 @@ public class TencentService extends CenterService {
 		List<String> quantizationCodes = quantizationSources.stream().map(QuantizationSource::getQuantizationCode).collect(Collectors.toList());
 		List<List<String>> quantizationCodesList = Lists.partition(quantizationCodes, 100);
 		quantizationCodesList.forEach(quantizationCode -> {
-			quantizationDetails.append(getRealTimeDatas(Joiner.on(",").join(quantizationCode), REMOTE_URL_TENCENT));
+			quantizationDetails.append(getRealTimeDatasFromRemote(Joiner.on(",").join(quantizationCode), REMOTE_URL_TENCENT));
 		});
 		return parseQuantizationDetails(quantizationDetails.toString());
 	}
@@ -47,7 +47,7 @@ public class TencentService extends CenterService {
 	@Override
 	public String getRealTimeDatas(String quantizationCodes) {
 		long start = System.currentTimeMillis();
-		String result = getRealTimeDatas(quantizationCodes, REMOTE_URL_TENCENT);
+		String result = getRealTimeDatasFromRemote(quantizationCodes, REMOTE_URL_TENCENT);
 		log.info("调用Tecent接口查询quantizationCodes耗时：{}，quantizationCodes: {}", System.currentTimeMillis() - start, quantizationCodes);
 		return result;
 	}

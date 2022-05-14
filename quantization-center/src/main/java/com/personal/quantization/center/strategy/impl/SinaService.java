@@ -36,7 +36,7 @@ public class SinaService extends CenterService {
 	
 	@Override
 	public String getRealTimeDatas(String quantizationCodes) {
-		return getRealTimeDatas(quantizationCodes, REMOTE_URL_SINA);
+		return getRealTimeDatasFromRemote(quantizationCodes, REMOTE_URL_SINA);
 	}
 	
 	/**
