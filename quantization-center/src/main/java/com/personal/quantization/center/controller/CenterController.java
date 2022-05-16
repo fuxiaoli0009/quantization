@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.personal.quantization.center.Interceptor.TimeInterceptor;
 import com.personal.quantization.center.constants.Constants;
 import com.personal.quantization.center.context.CenterContext;
 import com.personal.quantization.center.strategy.CenterService;
@@ -20,7 +19,6 @@ import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationSource;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.cglib.proxy.Enhancer;
 
 @RestController
 @RequestMapping(value = "/center")
@@ -48,22 +46,15 @@ public class CenterController {
 		return centerService.getQuantizationDetails(quantizationSources);
 	}
     
-    @RequestMapping(value = "/transferToMap", method = RequestMethod.POST)
-    public Map<String, CenterQuantization> transferToMap(@RequestBody String result) {
-    	return centerService.transferToMap(result);
-	}
-    
-    @RequestMapping(value = "/getRealTimeDatas", method = RequestMethod.POST)
-    public String getRealTimeDatas(@RequestBody String quantizationCodes) {
-    	
-    	return centerService.getRealTimeDatas(quantizationCodes);
+    @RequestMapping(value = "/obtainRealTimeDatas", method = RequestMethod.POST)
+    public Map<String, CenterQuantization> obtainRealTimeDatas(@RequestBody String quantizationCodes) {
+    	return centerService.obtainRealTimeDatas(quantizationCodes);
 	}
     
     @RequestMapping(value = "/getQuantizationHistoryDetails", method = RequestMethod.POST)
     public List<QuantizationHistoryDetail> getQuantizationHistoryDetails(@RequestBody List<String> quantizationCodes) {
 		return centerService.getQuantizationHistoryDetails(quantizationCodes);
 	}
-    
     
 	public void switchSource() {
 		if(Constants.REMOTE_SERVICE_TENCENT.equals(context.REMOVE_SERVICE)) {

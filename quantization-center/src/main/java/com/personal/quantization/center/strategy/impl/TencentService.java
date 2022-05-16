@@ -7,19 +7,16 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.stereotype.Service;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.personal.quantization.center.strategy.CenterService;
 import com.personal.quantization.enums.RemoteDataPrefixEnum;
-import com.personal.quantization.enums.StockTypeEnum;
 import com.personal.quantization.enums.TencentEnum;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationSource;
-import com.personal.quantization.model.CenterQuantization;
-import com.personal.quantization.model.TbStock;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +25,11 @@ import lombok.extern.slf4j.Slf4j;
 public class TencentService extends CenterService {
 
 	private static String REMOTE_URL_TENCENT = "http://qt.gtimg.cn/r=0q=";
+	
+	@Override
+	public String getServiceURL() {
+		return REMOTE_URL_TENCENT;
+	}
 	
 	@Override
 	public List<QuantizationDetailInfo> getQuantizationDetails(List<QuantizationSource> quantizationSources) {
@@ -44,14 +46,6 @@ public class TencentService extends CenterService {
 		return parseQuantizationDetails(quantizationDetails.toString());
 	}
 
-	@Override
-	public String getRealTimeDatas(String quantizationCodes) {
-		long start = System.currentTimeMillis();
-		String result = getRealTimeDatasFromRemote(quantizationCodes, REMOTE_URL_TENCENT);
-		log.info("调用Tecent接口查询quantizationCodes耗时：{}，quantizationCodes: {}", System.currentTimeMillis() - start, quantizationCodes);
-		return result;
-	}
-	
 	@Override
 	public List<QuantizationDetailInfo> parseQuantizationDetails(String result) {
 		
@@ -109,12 +103,6 @@ public class TencentService extends CenterService {
 								remote.setTotalMarketValue(Double.parseDouble(marketValueStr));
 							}
 							remote.setRatePercent(strs[5]+"%");
-							/*
-							 * if(strs[0].contains(RemoteDataPrefixEnum.TENCENT_SH.getCode())||strs[0].
-							 * contains(RemoteDataPrefixEnum.TENCENT_SZ.getCode())){
-							 * remote.setTurnOver(Long.valueOf(strs[7])*10000); }
-							 */
-							//remote.setTurnOver(Long.valueOf(strs[7])*10000);
 							remoteDataInfoMap.put(remote.getQuantizationCode(), remote);
 						}
 					}
@@ -127,52 +115,4 @@ public class TencentService extends CenterService {
 		return null;
 	}
 	
-	/**
-	 * 封装Tencent接口代码前缀
-	 * @param tbStocks
-	 * @param typeCode
-	 * @return
-	 */
-	public String getCodesFromStocks(List<TbStock> tbStocks, String typeCode) {
-		if(tbStocks!=null && tbStocks.size()>0) {
-    		StringBuffer sb = new StringBuffer();
-            for(TbStock tbStock : tbStocks){
-            	String code = tbStock.getCode();
-                try {
-                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)||StockTypeEnum.STOCK_STATUS_CHOSEN.getCode().equals(typeCode)) {
-                		sb.append(code.length() == 6 && code.startsWith("6") ? RemoteDataPrefixEnum.TENCENT_SH.getCode() : RemoteDataPrefixEnum.TENCENT_SZ.getCode());
-                	}
-                	if(StockTypeEnum.STOCK_STATUS_HK.getCode().equals(typeCode)) {
-                		sb.append(RemoteDataPrefixEnum.TENCENT_HK.getCode());
-                	}
-                	if(StockTypeEnum.STOCK_STAR.getCode().equals(typeCode)) {
-                		sb.append(RemoteDataPrefixEnum.TENCENT_SH.getCode());
-                	}
-    				sb.append(code);
-    				sb.append(",");
-    			} catch (Exception e) {
-    				log.error("code:{}, Tencent拼接字符串异常, 请修改数据库相关字段, 异常:{}", code, ExceptionUtils.getStackTrace(e));
-    			}
-            }
-            return sb.toString().substring(0, sb.length()-1);
-    	}
-        return null;
-	}
-
-	/**
-	 * 组装上海指数前缀
-	 * @param codes
-	 * @param type
-	 * @return
-	 */
-	public String getCodesFromSHZSCodes(List<String> codes, String type) {
-		StringBuffer sb = new StringBuffer();
-		for(String code : codes) {
-			sb.append(code.startsWith("0")?"s_sh":"s_sz");
-			sb.append(code);
-			sb.append(",");
-		}
-		return sb.toString().substring(0, sb.length()-1);
-	}
-
 }

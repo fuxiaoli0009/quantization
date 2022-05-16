@@ -53,4 +53,6 @@ public class QuantizationDetailInfo {
     
     public String retainedProfits2021;
     
+    public Integer sortOrder;
+    
 }

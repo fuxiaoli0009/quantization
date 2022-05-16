@@ -15,15 +15,13 @@ import com.personal.quantization.model.CenterQuantization;
 @FeignClient(value="quantization-center", path="/center")
 public interface QuantizationCenterClient {
 	
+	@RequestMapping(method=RequestMethod.POST, value="/obtainRealTimeDatas")
+	Map<String, CenterQuantization> obtainRealTimeDatas(String quantizationCodes);
+	
 	@RequestMapping(method=RequestMethod.POST, value="/getQuantizationDetails")
 	List<QuantizationDetailInfo> getQuantizationDetails(List<QuantizationSource> quantizationSources);
 	
-	@RequestMapping(method=RequestMethod.POST, value="/transferToMap")
-	Map<String, CenterQuantization> transferToMap(String result);
-	
-	@RequestMapping(method=RequestMethod.POST, value="/getRealTimeDatas")
-	String getRealTimeDatas(String quantizationCodes);
-	
 	@RequestMapping(method=RequestMethod.POST, value="/getQuantizationHistoryDetails")
 	List<QuantizationHistoryDetail> getQuantizationHistoryDetails(List<String> quantizationCodes);
+	
 }

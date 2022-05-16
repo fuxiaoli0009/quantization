@@ -2,13 +2,14 @@ package com.personal.quantization.center.strategy;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationHistoryDetail;
 
 import lombok.extern.slf4j.Slf4j;
@@ -24,9 +25,28 @@ public abstract class CenterService extends AbstractCenterServiceStrategy {
 	@Autowired(required=true)
 	RestTemplate restTemplate;
 	
+	/**
+	 * 模板方法
+	 * @param quantizationCodes
+	 * @param url
+	 * @return
+	 */
+	public final Map<String, CenterQuantization> obtainRealTimeDatas(String quantizationCodes) {
+		
+		//抽象方法
+		String serviceURL = this.getServiceURL();
+		//具体方法
+		String result = this.getRealTimeDatasFromRemote(quantizationCodes, serviceURL);
+		//抽象方法
+		return this.transferToMap(result);
+	} 
+	
 	@Override
-	public String getRealTimeDatasFromRemote(String quantizationCodes, String url) {
-		return restTemplate.getForObject(url + quantizationCodes, String.class);
+	public final String getRealTimeDatasFromRemote(String quantizationCodes, String url) {
+		long start = System.currentTimeMillis();
+		String result = restTemplate.getForObject(url + quantizationCodes, String.class);
+		log.info("调用Tecent接口查询quantizationCodes耗时：{}，quantizationCodes: {}", System.currentTimeMillis() - start, quantizationCodes);
+		return result;
 	}
 
 	public List<QuantizationHistoryDetail> getQuantizationHistoryDetails(List<String> quantizationCodes) {
@@ -40,39 +60,4 @@ public abstract class CenterService extends AbstractCenterServiceStrategy {
 		});
 		return result;
 	}
-	
-	/**
-	 * test
-	 * @param args
-	 */
-	public static void main(String[] args) {
-		List<QuantizationHistoryDetail> historys = new ArrayList<>();
-		QuantizationHistoryDetail history = new QuantizationHistoryDetail();
-		history.setCode("");
-		history.setStatus("");
-		List<String> list = new ArrayList<>();
-		list.add("0");
-		list.add("1");
-		list.add("2");
-		list.add("3");
-		list.add("4");
-		list.add("5");
-		list.add("6");
-		list.add("7");
-		list.add("8");
-		list.add("9");
-		list.add("10");
-		List<List<String>> hq = new ArrayList<>();
-		hq.add(list);
-		history.setHq(hq);
-		historys.add(history);
-		String jsonString = JSON.toJSONString(historys);
-		System.out.println(JSON.toJSONString(historys));
-		
-		List<QuantizationHistoryDetail> result = JSONObject.parseArray(jsonString, QuantizationHistoryDetail.class);
-		System.out.println(JSON.toJSONString(result));
-
-	}
-
-
 }

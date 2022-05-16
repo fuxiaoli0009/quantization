@@ -9,7 +9,7 @@ import com.personal.quantization.model.CenterQuantization;
 
 public abstract class AbstractCenterServiceStrategy {
 	
-	public abstract String getRealTimeDatas(String quantizationCodes);
+	public abstract String getServiceURL();
 
 	public abstract String getRealTimeDatasFromRemote(String quantizationCodes, String url);
 	

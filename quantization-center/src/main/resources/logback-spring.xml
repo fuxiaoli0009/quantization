@@ -15,7 +15,7 @@
     
     <appender name="stash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
     	<param name="Encoding" value="UTF-8"/>
-		<destination>101.43.110.173:37370</destination>
+		<destination>101.43.110.173:33170</destination>
 		<encoder charset="UTF-8" class="net.logstash.logback.encoder.LogstashEncoder" >
  			<customFields>{"appname":"${application.name}"}</customFields>
 		</encoder>

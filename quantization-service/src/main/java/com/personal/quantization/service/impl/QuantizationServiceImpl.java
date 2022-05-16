@@ -28,7 +28,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.personal.quantization.center.api.QuantizationCenterClient;
+import com.personal.quantization.chain.AddPreChain;
 import com.personal.quantization.constant.Constants;
 import com.personal.quantization.enums.ColumnEnum;
 import com.personal.quantization.enums.QuantizationSourceEnum;
@@ -64,6 +66,9 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	
 	@Autowired
 	private QuantizationMapper quantizationMapper;
+	
+	@Autowired
+	private AddPreChain addPreChain;
 	
 	@Resource(name = "myDataThreadPool")
 	private ExecutorService executorService;
@@ -126,27 +131,33 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	}
 	
 	public List<QuantizationRealtimeInfo> getQuantizationRealtimeInfo(List<QuantizationDetailInfo> quantizations, String source){
-		String quantizationCodesResult = null;
-		try {
-			String cache = QuantizationSourceEnum.getCacheBySource(source);
-			quantizationCodesResult = redisTemplate.opsForValue().get(cache);
-			if(StringUtils.isEmpty(quantizationCodesResult)) {
-				log.info("redis缓存数据为空，调用远程接口查询.");
-				quantizationCodesResult = this.getRealTimeDatas(QuantizationUtil.transferToACodes(quantizations));
-				redisTemplate.opsForValue().set(cache, quantizationCodesResult, 5, TimeUnit.MINUTES);
-			} else {
-				log.info("从redis缓存读取数据.");
-			}
-		} catch (Exception e) {
-			log.error("redis连接超时" + e);
-			quantizationCodesResult = this.getRealTimeDatas(QuantizationUtil.transferToACodes(quantizations));
+    	
+		List<QuantizationRealtimeInfo> realtimeInfos = new ArrayList<>();
+		String cache = QuantizationSourceEnum.getCacheBySource(source);
+		String realtimeInfoJson = redisTemplate.opsForValue().get(cache);
+		if(!StringUtils.isEmpty(realtimeInfoJson)) {
+			log.info("从redis缓存读取数据。");
+			return JSONArray.parseArray(realtimeInfoJson, QuantizationRealtimeInfo.class);
+		} else {
+			log.info("redis缓存数据为空，开始调用远程接口查询。");
+			List<String> quantizationCodes = transferToACodes(quantizations);
+	    	Map<String, CenterQuantization> quantizationCodesResultMap = centerClient.obtainRealTimeDatas(String.join(",", quantizationCodes));
+	    	realtimeInfos = this.assembleDatas(quantizationCodesResultMap, quantizations);
+	    	redisTemplate.opsForValue().set(cache, JSON.toJSONString(realtimeInfos));
 		}
-    	Map<String, CenterQuantization> quantizationCodesResultMap = centerClient.transferToMap(quantizationCodesResult);
-    	return this.assembleDatas(quantizationCodesResultMap, quantizations);
+    	return realtimeInfos;
 	}
 	
-	public String getRealTimeDatas(List<String> quantizationCodes) {
-		return centerClient.getRealTimeDatas(String.join(",", quantizationCodes));
+	public List<String> transferToACodes(List<QuantizationDetailInfo> quantizations) {
+		List<String> quantizationCodes = new ArrayList<>();
+		for(QuantizationDetailInfo quantization : quantizations) {
+			StringBuffer sb = new StringBuffer();
+			String result = addPreChain.addPre(quantization.getSource());
+			sb.append(result);
+			sb.append(quantization.getQuantizationCode());
+			quantizationCodes.add(sb.toString());
+		}
+		return quantizationCodes;
 	}
 	
 	@Override
@@ -218,10 +229,6 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		return null;
 	}
 	
-	public List<QuantizationRealtimeInfo> getQuantizationRealtimeInfo(String type){
-		return null;
-	}
-
 	public List<QuantizationRealtimeInfo> assembleDatas(Map<String, CenterQuantization> remoteQuantizationMap, List<QuantizationDetailInfo> quantizations) {
 		long start = System.currentTimeMillis();
 		List<QuantizationRealtimeInfo> viewList = new ArrayList<>();

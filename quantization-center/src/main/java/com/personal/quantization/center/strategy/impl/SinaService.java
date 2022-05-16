@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,11 +13,9 @@ import org.springframework.stereotype.Service;
 
 import com.personal.quantization.center.strategy.CenterService;
 import com.personal.quantization.enums.RemoteDataPrefixEnum;
-import com.personal.quantization.enums.StockTypeEnum;
+import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationSource;
-import com.personal.quantization.model.CenterQuantization;
-import com.personal.quantization.model.TbStock;
 
 /**
  * Sina接口服务
@@ -31,20 +28,6 @@ public class SinaService extends CenterService {
 	@Value("${REMOTE.URL.SINA:http://hq.sinajs.cn/list=}")
 	private static String REMOTE_URL_SINA;
 	
-	//@Autowired
-	//private WarningInfoService warningInfoService;
-	
-	@Override
-	public String getRealTimeDatas(String quantizationCodes) {
-		return getRealTimeDatasFromRemote(quantizationCodes, REMOTE_URL_SINA);
-	}
-	
-	/**
-	 * 封装Sina数据为通用模板RemoteDataInfo数据
-	 * 沪深股票、沪深指数、港股，远程接口返回数据格式都不相同，要分别解析
-	 * @param response
-	 * @return
-	 */
 	public Map<String, CenterQuantization> transferToMap(String response){
 		if(response!=null && response.contains(";")) {
 			String[] responseArray = response.split("\n");
@@ -110,61 +93,6 @@ public class SinaService extends CenterService {
 		return null;
 	}
 	
-	
-	
-	
-	
-	
-	
-	/**
-	 * 封装Sina接口代码前缀
-	 * @param tbStocks
-	 * @param typeCode
-	 * @return
-	 */
-	public String getCodesFromStocks(List<TbStock> tbStocks, String typeCode) {
-		if(tbStocks!=null && tbStocks.size()>0) {
-    		StringBuffer sb = new StringBuffer();
-            for(TbStock tbStock : tbStocks){
-            	String code = tbStock.getCode();
-                try {
-                	if(StockTypeEnum.STOCK_STATUS_HS.getCode().equals(typeCode)||StockTypeEnum.STOCK_STATUS_CHOSEN.getCode().equals(typeCode)) {
-                		sb.append(code.length() == 6 && code.startsWith("6") ? RemoteDataPrefixEnum.SINA_SH.getCode() : RemoteDataPrefixEnum.SINA_SZ.getCode());
-                	}
-                	if(StockTypeEnum.STOCK_STATUS_HK.getCode().equals(typeCode)) {
-                		sb.append(RemoteDataPrefixEnum.SINA_HK.getCode());
-                	}
-                	if(StockTypeEnum.STOCK_STAR.getCode().equals(typeCode)) {
-                		sb.append(RemoteDataPrefixEnum.SINA_SH.getCode());
-                	}
-    				sb.append(code);
-    				sb.append(",");
-    			} catch (Exception e) {
-    				logger.error("code:{}, Sina接字符串异常, 请修改数据库相关字段, 异常:{}", code, ExceptionUtils.getStackTrace(e));
-    				//warningInfoService.saveWarningInfo("SinaApiService", "code:"+code+", Sina接字符串异常."+e);
-    			}
-            }
-            return sb.toString().substring(0, sb.length()-1);
-    	}
-        return null;
-	}
-
-	/**
-	 * 沪深指数前缀
-	 * @param codes
-	 * @param type
-	 * @return
-	 */
-	public String getCodesFromSHZSCodes(List<String> codes, String type) {
-		StringBuffer sb = new StringBuffer();
-		for(String code : codes) {
-			sb.append(code.startsWith("0")?"s_sh":"s_sz");
-			sb.append(code);
-			sb.append(",");
-		}
-		return sb.toString().substring(0, sb.length()-1);
-	}
-
 	@Override
 	public List<QuantizationDetailInfo> getQuantizationDetails(List<QuantizationSource> quantizationSources) {
 		// TODO Auto-generated method stub
@@ -177,11 +105,10 @@ public class SinaService extends CenterService {
 		return null;
 	}
 
-
-
-
-
-
-
+	@Override
+	public String getServiceURL() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

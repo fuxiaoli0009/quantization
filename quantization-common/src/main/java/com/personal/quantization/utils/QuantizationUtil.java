@@ -10,9 +10,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.personal.quantization.chain.AddPreChain;
 import com.personal.quantization.enums.QuantizationEnum;
-import com.personal.quantization.enums.QuantizationSourceEnum;
 import com.personal.quantization.model.QuantizationDetailInfo;
 
 import net.sf.cglib.beans.BeanMap;
@@ -25,28 +26,6 @@ public class QuantizationUtil {
 	
 	private static DecimalFormat df = new DecimalFormat("######0.00");
 
-	public static List<String> transferToACodes(List<QuantizationDetailInfo> quantizations) {
-		List<String> quantizationCodes = new ArrayList<>();
-		for(QuantizationDetailInfo quantization : quantizations) {
-			StringBuffer sb = new StringBuffer();
-			if(quantization.getSource().equals(QuantizationSourceEnum.QUANTIZATION_SOURCE_SH.getSource())) {
-				sb.append("s_sh");
-			}
-			if(quantization.getSource().equals(QuantizationSourceEnum.QUANTIZATION_SOURCE_SZ.getSource())) {
-				sb.append("s_sz");
-			}
-			if(quantization.getSource().equals(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource())) {
-				sb.append("s_sh");
-			}
-			if(quantization.getSource().equals(QuantizationSourceEnum.QUANTIZATION_SOURCE_XG.getSource())) {
-				sb.append("s_hk");
-			}
-			sb.append(quantization.getQuantizationCode());
-			quantizationCodes.add(sb.toString());
-		}
-		return quantizationCodes;
-	}
-	
 	public static String getTwoPointDouble(String data) {
 		if(StringUtils.isNotEmpty(data)) {
 			return df.format(Double.valueOf(data));
