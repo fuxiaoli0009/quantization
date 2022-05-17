@@ -18,5 +18,7 @@ public interface QuantizationChooseService {
 	public void updateSelectedStatus(String quantizationCode, String selectedStatus);
 
 	public void add(QuantizationRealtimeInfo quantizationRealtimeInfo);
+
+	public Boolean clearRedis();
 	
 }

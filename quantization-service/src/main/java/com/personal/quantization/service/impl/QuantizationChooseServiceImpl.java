@@ -2,13 +2,16 @@ package com.personal.quantization.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.personal.quantization.center.api.QuantizationCenterClient;
 import com.personal.quantization.constant.Constants;
 import com.personal.quantization.enums.QuantizationSelectedStatusEnum;
+import com.personal.quantization.enums.QuantizationSourceEnum;
 import com.personal.quantization.mapper.QuantizationMapper;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationRealtimeInfo;
@@ -24,6 +27,9 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
     
 	@Autowired
 	QuantizationCenterClient centerClient;
+	
+	@Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 	
 	@Autowired
 	private QuantizationMapper quantizationMapper;
@@ -97,5 +103,20 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
 	@Override
 	public void add(QuantizationRealtimeInfo quantizationRealtimeInfo) {
 		quantizationMapper.updateSelectedStatus(quantizationRealtimeInfo.getQuantizationCode(), QuantizationSelectedStatusEnum.QUANTIZATION_SELECTED_STATUS_1.getCode());
+	}
+
+	@Override
+	public Boolean clearRedis() {
+		for(QuantizationSourceEnum quantizationSourceEnum : QuantizationSourceEnum.values()){
+			String cache = quantizationSourceEnum.getCache();
+			if(redisTemplate.hasKey(cache)) {
+				if(!redisTemplate.expire(quantizationSourceEnum.getCache(), 0,TimeUnit.MILLISECONDS)) {
+					log.info("clearRedis 删除key:{}异常！", quantizationSourceEnum.getCache());
+					return false;
+				}
+			}
+        }
+		log.info("clearRedis清除缓存成功！");
+		return true;
 	}
 }

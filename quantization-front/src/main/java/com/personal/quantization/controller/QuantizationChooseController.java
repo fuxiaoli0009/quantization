@@ -32,6 +32,12 @@ public class QuantizationChooseController {
 		return quantizationChooseService.updatePBPE();
 	}
 	
+	@ApiOperation(value = "清空redis缓存", httpMethod = "GET")
+    @RequestMapping(value = "/clearRedis", method = RequestMethod.GET)
+    public Boolean clearRedis(){
+		return quantizationChooseService.clearRedis();
+	}
+	
 	@ApiOperation(value = "2、重新从选出待选中的", httpMethod = "GET")
     @RequestMapping(value = "/selectQuantizations", method = RequestMethod.GET)
     public String selectQuantizations(){

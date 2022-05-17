@@ -32,7 +32,12 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         assert handler instanceof HandlerMethod;
-        HandlerMethod method = (HandlerMethod) handler;
+        HandlerMethod method = null;
+		try {
+			method = (HandlerMethod) handler;
+		} catch (Exception e) {
+			return true;
+		}
         RateLimit rateLimit = method.getMethodAnnotation(RateLimit.class);
         //当前方法上有我们自定义的注解
         if (rateLimit != null) {

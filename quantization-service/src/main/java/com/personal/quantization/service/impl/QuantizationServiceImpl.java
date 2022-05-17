@@ -21,14 +21,18 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.connection.RedisConnection;
+import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.TypeReference;
 import com.personal.quantization.center.api.QuantizationCenterClient;
 import com.personal.quantization.chain.AddPreChain;
 import com.personal.quantization.constant.Constants;
@@ -56,7 +60,7 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	private static final String QUANTIZATION_SOURCE = "quantization_source";
 	
 	@Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, Object> redisTemplate;
 	
 	@Autowired
 	private MongoTemplate mongoTemplate;
@@ -114,15 +118,14 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		long start2 = System.currentTimeMillis();
 		if("dev".equals(PROFILE_ACTIVE)) {
 			List<QuantizationInfo> infos = new ArrayList<>();
-			hsQuantizations.forEach(realtimeInfo -> {
+			for(QuantizationRealtimeInfo realtimeInfo : hsQuantizations) {
 				QuantizationInfo info = new QuantizationInfo();
 				info.setQuantizationCode(Integer.valueOf(realtimeInfo.getQuantizationCode()));
 				info.setQuantizationName(realtimeInfo.getQuantizationName());
 				infos.add(info);
-			});
-			executorService.execute(()->{
-				quantizationMapper.insertQuantizationInfo(infos);
-			});
+			}
+			executorService.execute(() -> quantizationMapper.insertQuantizationInfo(infos));
+			executorService.execute(() -> saveQuantizationInfosByPipeline(infos));
 		}
 		Collections.sort(hsQuantizations);
 		maps.put("result", hsQuantizations);
@@ -130,20 +133,43 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		return JSON.toJSONString(maps);
 	}
 	
+	public void saveQuantizationInfosByPipeline(List<QuantizationInfo> infos) { 
+		
+		long start = System.currentTimeMillis() ; 
+		redisTemplate.executePipelined(new RedisCallback<Object>(){
+			@Override
+			public Object doInRedis(RedisConnection connection) throws DataAccessException {
+				for(QuantizationInfo info : infos) {
+					connection.setEx(("q_"+info.getQuantizationCode()).getBytes(), 60, JSON.toJSONString(info).getBytes());
+				}
+				return null;
+			}
+		});
+		log.info("QuantizationInfo数据通过管道存入redis，耗时:{}", (System.currentTimeMillis() - start) + " ms");
+	} 
+
+	
 	public List<QuantizationRealtimeInfo> getQuantizationRealtimeInfo(List<QuantizationDetailInfo> quantizations, String source){
     	
 		List<QuantizationRealtimeInfo> realtimeInfos = new ArrayList<>();
 		String cache = QuantizationSourceEnum.getCacheBySource(source);
-		String realtimeInfoJson = redisTemplate.opsForValue().get(cache);
-		if(!StringUtils.isEmpty(realtimeInfoJson)) {
+		List<Object> resp = redisTemplate.opsForList().range(cache, 0, -1);
+		if(!CollectionUtils.isEmpty(resp)) {
+			for(Object obj : resp) {
+				QuantizationRealtimeInfo qr = JSON.parseObject(JSON.toJSONString(obj), new TypeReference<QuantizationRealtimeInfo>() { });
+				realtimeInfos.add(qr);
+			}
 			log.info("从redis缓存读取数据。");
-			return JSONArray.parseArray(realtimeInfoJson, QuantizationRealtimeInfo.class);
+			return realtimeInfos;
 		} else {
 			log.info("redis缓存数据为空，开始调用远程接口查询。");
 			List<String> quantizationCodes = transferToACodes(quantizations);
 	    	Map<String, CenterQuantization> quantizationCodesResultMap = centerClient.obtainRealTimeDatas(String.join(",", quantizationCodes));
 	    	realtimeInfos = this.assembleDatas(quantizationCodesResultMap, quantizations);
-	    	redisTemplate.opsForValue().set(cache, JSON.toJSONString(realtimeInfos));
+	    	realtimeInfos.stream().forEach(realtimeInfo -> redisTemplate.opsForList().leftPushAll(cache, realtimeInfo));
+	    	//Long result = redisTemplate.opsForList().leftPushAll(cache, realtimeInfos);
+	    	redisTemplate.expire(cache, 10,TimeUnit.MINUTES);
+	    	log.info("存redis成功");
 		}
     	return realtimeInfos;
 	}
