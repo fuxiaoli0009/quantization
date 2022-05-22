@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personal.quantization.mapperauth.AuthTestMapper">
+
+  <resultMap id="authTestMap" type="com.personal.quantization.model.AuthTest">
+    <id column="auth_id" property="authId" jdbcType="VARCHAR"/>
+    <result column="auth_code" property="authCode" jdbcType="VARCHAR"/>
+    <result column="auth_name" property="authName" jdbcType="VARCHAR"/>
+  </resultMap>
+  
+  <insert id="saveAuthTest" parameterType="com.personal.quantization.model.AuthTest">
+  	insert into auth_test(auth_code, auth_name)
+  	values (#{authCode}, #{authName})
+  </insert>
+  
+  <select id="selectAuthTests" resultMap="authTestMap">
+  	select auth_id, auth_code, auth_name from auth_test
+  </select>
+  
+</mapper>

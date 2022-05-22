@@ -1,0 +1,16 @@
+service.vgroupMapping.default_tx_group=default
+store.mode=db
+store.db.datasource=HikariCP
+store.db.dbType=mysql
+store.db.driverClassName=com.mysql.jdbc.Driver
+store.db.url=jdbc:mysql://101.43.110.173:30370/seata?characterEncoding=utf-8&useSSL=false
+store.db.user=root
+store.db.password=Shenghuo@2022
+store.db.minConn=5
+store.db.maxConn=30
+store.db.globalTable=global_table
+store.db.branchTable=branch_table
+store.db.distributedLockTable=distributed_lock
+store.db.queryLimit=100
+store.db.lockTable=lock_table
+store.db.maxWait=5000

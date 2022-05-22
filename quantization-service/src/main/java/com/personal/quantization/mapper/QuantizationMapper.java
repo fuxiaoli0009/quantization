@@ -11,8 +11,6 @@ import com.personal.quantization.model.QuantizationSource;
 
 public interface QuantizationMapper {
 
-	public List<QuantizationRealtimeInfo> getAllQuantizations(String status);
-	
 	public List<Integer> getCloseIndexsByCode(String code);
 
 	public void updateQuantization(QuantizationRealtimeInfo quantization);

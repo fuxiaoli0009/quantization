@@ -5,6 +5,7 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import com.personal.quantization.enums.QuantizationSourceEnum;
 import com.personal.quantization.mapper.QuantizationMapper;
 import com.personal.quantization.model.CenterQuantization;
 import com.personal.quantization.model.QuantizationDetailInfo;
+import com.personal.quantization.model.QuantizationError;
 import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationIndexValues;
 import com.personal.quantization.model.QuantizationInfo;
@@ -125,7 +127,8 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 				infos.add(info);
 			}
 			executorService.execute(() -> quantizationMapper.insertQuantizationInfo(infos));
-			executorService.execute(() -> saveQuantizationInfosByPipeline(infos));
+			executorService.execute(() -> saveQuantizationInfosIntoRedisByPipeline(infos));
+			executorService.execute(() -> saveQuantizationInfosIntoMongodb(infos));
 		}
 		Collections.sort(hsQuantizations);
 		maps.put("result", hsQuantizations);
@@ -133,7 +136,13 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 		return JSON.toJSONString(maps);
 	}
 	
-	public void saveQuantizationInfosByPipeline(List<QuantizationInfo> infos) { 
+	public void saveQuantizationInfosIntoMongodb(List<QuantizationInfo> infos) {
+		Collection<QuantizationInfo> infoCollection = mongoTemplate.insert(infos, QuantizationInfo.class);
+		log.info("QuantizationInfo数据成功插入mongodb。");
+		log.info("collection: {}", JSON.toJSONString(infoCollection));
+	}
+	
+	public void saveQuantizationInfosIntoRedisByPipeline(List<QuantizationInfo> infos) { 
 		
 		long start = System.currentTimeMillis() ; 
 		redisTemplate.executePipelined(new RedisCallback<Object>(){
@@ -246,10 +255,12 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 	@Override
 	public String getIndex() {
 		List<QuantizationIndexValues> list = mongoTemplate.find(new Query(), QuantizationIndexValues.class);
-		List<QuantizationValueDetail> values = list.get(0).getDetail();
-		for(QuantizationValueDetail detail : values) {
-			if(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource().equals(detail.getQuantizationSource())) {
-				return detail.getIndexValue().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+		if(!CollectionUtils.isEmpty(list)) {
+			List<QuantizationValueDetail> values = list.get(0).getDetail();
+			for(QuantizationValueDetail detail : values) {
+				if(QuantizationSourceEnum.QUANTIZATION_SOURCE_KC.getSource().equals(detail.getQuantizationSource())) {
+					return detail.getIndexValue().setScale(2, BigDecimal.ROUND_HALF_UP).toString();
+				}
 			}
 		}
 		return null;
@@ -319,12 +330,21 @@ public class QuantizationServiceImpl implements QuantizationService, Initializin
 					//warningInfoService.saveWarningInfo("RemoteDataService", "quantizationCode:"+quantizationCode+", 远程数据对象为空");
 				}
 			} catch (Exception e) {
-				log.error("编码{}, 根据远程数据组装展示数据方法异常: {}", quantizationCode, e);
-				//warningInfoService.saveWarningInfo("RemoteDataService", "根据远程数据组装展示数据方法异常,code:"+quantizations.get(i).getQuantizationCode()+"."+e);
+				saveErrorMessage(quantization, e.getMessage());
+				log.error("编码{}, 根据远程数据组装展示数据方法异常: {}", quantizationCode, e.getMessage());
 			}
 		}
 		log.info("实时查询数据耗时4：{}", System.currentTimeMillis() - start);
 		return viewList;
+	}
+	
+	public void saveErrorMessage(QuantizationDetailInfo quantization, String message) {
+		QuantizationError error = new QuantizationError();
+		error.setQuantizationCode(quantization.getQuantizationCode());
+		error.setQuantizationName(quantization.getQuantizationName());
+		error.setQuantizationId(quantization.getQuantizationId());
+		error.setMessage(message);
+		mongoTemplate.save(error);
 	}
 
 	public void updateQuantization(String column, String quantizationCode, String value){ 

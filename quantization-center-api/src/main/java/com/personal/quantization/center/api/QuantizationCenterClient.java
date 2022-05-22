@@ -7,10 +7,11 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.personal.quantization.model.CenterQuantization;
+import com.personal.quantization.model.CenterTest;
 import com.personal.quantization.model.QuantizationDetailInfo;
 import com.personal.quantization.model.QuantizationHistoryDetail;
 import com.personal.quantization.model.QuantizationSource;
-import com.personal.quantization.model.CenterQuantization;
 
 @FeignClient(value="quantization-center", path="/center")
 public interface QuantizationCenterClient {
@@ -24,4 +25,9 @@ public interface QuantizationCenterClient {
 	@RequestMapping(method=RequestMethod.POST, value="/getQuantizationHistoryDetails")
 	List<QuantizationHistoryDetail> getQuantizationHistoryDetails(List<String> quantizationCodes);
 	
+	@RequestMapping(method=RequestMethod.POST, value="/selectCenterTests")
+	List<CenterTest> selectCenterTests();
+	
+	@RequestMapping(method=RequestMethod.POST, value="/saveCenterTest")
+	void saveCenterTest(CenterTest centerTest);
 }

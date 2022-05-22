@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.personal.quantization.common.RateLimit;
+import com.personal.quantization.service.QuantizationTestService;
 
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,9 @@ public class QuantizationTestController {
 	
 	@Autowired
     private RedisTemplate<String, String> redisTemplate;
+	
+	@Autowired
+	private QuantizationTestService quantizationTestService;
 
 	@RateLimit(key = "testGet", time = 30, count = 5,ipLimit = true)
 	@ApiOperation(value = "redis+lua", httpMethod = "GET")
@@ -39,13 +43,67 @@ public class QuantizationTestController {
 		    List<String> keys = new ArrayList<>();
 		    keys.add("luateststr");
 		    Long result = redisTemplate.execute(redisScript, keys);
-		    System.out.println("result" + result);
+		    log.info("result:{}", result);
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(100%16385);
+	/**
+	 ******************************************************************************
+	 ********************************** 事务相关 ***********************************
+	 ******************************************************************************
+	 */
+	@ApiOperation(value = "mongoTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/mongoTransactionTest", method = RequestMethod.GET)
+    public void mongoTransactionTest(){
+		quantizationTestService.mongoTransactionTest();
 	}
+	
+	@ApiOperation(value = "mysqlTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/mysqlTransactionTest", method = RequestMethod.GET)
+    public void mysqlTransactionTest(){
+		quantizationTestService.mysqlTransactionTest();
+	}
+	
+	@ApiOperation(value = "shardingTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/shardingTransactionTest", method = RequestMethod.GET)
+    public void shardingTransactionTest(){
+		quantizationTestService.shardingTransactionTest();
+	}
+	
+	@ApiOperation(value = "twoMysqlTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/twoMysqlTransactionTest", method = RequestMethod.GET)
+    public void twoMysqlTransactionTest(){
+		quantizationTestService.twoMysqlTransactionTest();
+	}
+	
+	@ApiOperation(value = "twoMysqlTransactionBySeataTest", httpMethod = "GET")
+    @RequestMapping(value = "/twoMysqlTransactionBySeataTest", method = RequestMethod.GET)
+    public void twoMysqlTransactionBySeataTest(){
+		quantizationTestService.twoMysqlTransactionBySeataTest();
+	}
+	
+	@ApiOperation(value = "twoMicroServiceTransactionBySeataTest", httpMethod = "GET")
+    @RequestMapping(value = "/twoMicroServiceTransactionBySeataTest", method = RequestMethod.GET)
+    public void twoMicroServiceTransactionBySeataTest(){
+		try {
+			quantizationTestService.twoMicroServiceTransactionBySeataTest();
+		} catch (Exception e) {
+			log.info("");
+		}
+	}
+	
+	@ApiOperation(value = "twoMysqlTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/twoMysqlSelectTest", method = RequestMethod.GET)
+    public void twoMysqlSelectTest(){
+		quantizationTestService.twoMysqlSelectTest();
+	}
+	
+	@ApiOperation(value = "mongoMysqlTransactionTest", httpMethod = "GET")
+    @RequestMapping(value = "/mongoMysqlTransactionTest", method = RequestMethod.GET)
+    public void mongoMysqlTransactionTest(){
+		quantizationTestService.mongoMysqlTransactionTest();
+	}
+	
 }

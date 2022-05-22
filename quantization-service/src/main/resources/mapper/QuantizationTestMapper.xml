@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.personal.quantization.mapper.QuantizationTestMapper">
+
+  <resultMap id="quantizationTestMap" type="com.personal.quantization.model.QuantizationTest">
+    <id column="quantization_id" property="quantizationId" jdbcType="VARCHAR"/>
+    <result column="quantization_code" property="quantizationCode" jdbcType="VARCHAR"/>
+    <result column="quantization_name" property="quantizationName" jdbcType="VARCHAR"/>
+  </resultMap>
+  
+  <insert id="saveQuantizationTest" parameterType="com.personal.quantization.model.QuantizationTest">
+  	insert into quantization_test(quantization_code, quantization_name)
+  	values (#{quantizationCode}, #{quantizationName})
+  </insert>
+  
+  <select id="selectQuantizationTests" resultMap="quantizationTestMap">
+  	select quantization_id, quantization_code, quantization_name from quantization_test
+  </select>
+</mapper>

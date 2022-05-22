@@ -55,4 +55,5 @@ public class QuantizationDetailInfo {
     
     public Integer sortOrder;
     
+    public Integer negativeCount;
 }

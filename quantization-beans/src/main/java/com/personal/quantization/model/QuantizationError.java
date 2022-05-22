@@ -5,13 +5,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import lombok.Data;
 
 @Data
-@Document("quantization_info")
-public class QuantizationInfo {
+@Document("quantization_error")
+public class QuantizationError {
 
     public Long quantizationId;
 
-    public Integer quantizationCode;
+    public String quantizationCode;
 
     public String quantizationName;
+    
+    public String message;
+    
+    
     
 }

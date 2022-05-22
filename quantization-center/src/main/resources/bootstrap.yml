@@ -14,3 +14,24 @@ spring:
         server-addr: 101.43.110.173:31370
         group: dev
         namespace: 424fbe21-5ac6-40c7-8b72-95cecec8daa6
+
+seata:
+  enabled: true
+  tx-service-group: q-service-group
+  vgroupMapping: q-service-group
+  enable-auto-data-source-proxy: true
+  use-jdk-proxy: false
+  config:
+    type: nacos
+    nacos:
+      namespace:
+      server-addr: 101.43.110.173:31370
+      group: SEATA_GROUP
+  registry:
+    type: nacos
+    nacos:
+      namespace: 424fbe21-5ac6-40c7-8b72-95cecec8daa6
+      application: seata-server
+      server-addr: 101.43.110.173:31370
+      group: DEFAULT_GROUP
+      cluster: default

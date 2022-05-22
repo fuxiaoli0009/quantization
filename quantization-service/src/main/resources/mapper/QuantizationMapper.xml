@@ -1,12 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.personal.quantization.mapper.QuantizationMapper">
-  <select id="getAllQuantizations" parameterType="java.lang.String"  resultType="com.personal.quantization.model.QuantizationRealtimeInfo">
-  	select * from quantization_realtime_info where selected_status = #{status}
-  </select>
+
+  <resultMap id="quantizationDetailInfoMap" type="com.personal.quantization.model.QuantizationDetailInfo">
+    <result column="quantization_code" property="quantizationCode" jdbcType="VARCHAR"/>
+    <result column="quantization_name" property="quantizationName" jdbcType="VARCHAR"/>
+    <result column="debt_ratio" property="debtRatio" jdbcType="VARCHAR"/>
+    <result column="good_will" property="goodWill" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2016" property="retainedProfits2016" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2017" property="retainedProfits2017" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2018" property="retainedProfits2018" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2019" property="retainedProfits2019" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2020" property="retainedProfits2020" jdbcType="VARCHAR"/>
+    <result column="retained_profits_2021" property="retainedProfits2021" jdbcType="VARCHAR"/>
+    <result column="sort_order" property="sortOrder" jdbcType="VARCHAR"/>
+    <result column="max_value" property="maxValue" jdbcType="VARCHAR"/>
+    <result column="min_value" property="minValue" jdbcType="VARCHAR"/>
+    <result column="buy_price" property="buyPrice" jdbcType="VARCHAR"/>
+    <result column="selected_status" property="selectedStatus" jdbcType="VARCHAR"/>
+  </resultMap>
   
   <select id="getQuantizationDetailInfos"  parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationSource">
-  	select quantization_code, source from quantization_realtime_info where selected_status in
+  	select quantization_code as quantizationCode, source from quantization_realtime_info where selected_status in
   	<foreach item="selected" collection="selectedStatus" open="(" separator="," close=")">
             #{selected}
         </foreach>
@@ -41,7 +56,7 @@
   	</foreach>
   </update>
   
-  <select id="selectQuantizations" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+  <select id="selectQuantizations" resultMap="quantizationDetailInfoMap">
   	SELECT
 		quantization_code,
 		quantization_name,
@@ -87,10 +102,11 @@
 			qri.selected_status in ('0', '1') 
 			AND qri.real_time > 0 
 			AND qri.min_value > 0 
+			and qri.debt_ratio &lt; 60
 		) tmp 
 	WHERE
-		incri &lt; 0.15*100 AND decri > 0.75*100 
-		AND pb &lt; 2.8 AND pb > 0 AND (pe > 0 and pe &lt; 50 )
+		incri &lt; 0.16*100 AND decri > 0.72*100 
+		AND pb &lt; 5 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
 		AND instr(quantization_name, 'ST') =0
 	ORDER BY
 		sort_order,
@@ -110,7 +126,7 @@
   	UPDATE quantization_realtime_info set selected_status = '0' where selected_status = '2' 
   </update>
   
-  <select id="selectQuantizationsByClassify" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+  <select id="selectQuantizationsByClassify" resultMap="quantizationDetailInfoMap">
     SELECT
 		quantization_code,
 		quantization_name,
@@ -154,11 +170,11 @@
 			left join finance_data fd on qri.quantization_code = fd.quantization_code
 			left join quantization_dictionary qd on qd.name = qri.classify
 		WHERE
-			qri.selected_status IN ( '1', '2' ) 
+			qri.selected_status IN ( '1', '2' ) and qri.debt_ratio &lt; 60
 		) tmp 
 	WHERE
-		incri &lt; 0.15*100 AND decri > 0.75*100 
-		AND pb &lt; 2.8 AND pb > 0 AND (pe > 0 and pe &lt; 50 )
+		incri &lt; 0.16*100 AND decri > 0.72*100 
+		AND pb &lt; 5 AND pb > 0 AND (pe > 0 or pe &lt; -50 )
 		AND instr(quantization_name, 'ST') =0
 	UNION ALL
 	SELECT
@@ -194,10 +210,11 @@
   </select>
   
   <select id="selectQuantizationsBySelected" parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationDetailInfo">
-    select quantization_code, quantization_name, pb, pe, classify  from quantization_realtime_info where selected_status = #{code}
+    select quantization_code AS quantizationCode, quantization_name AS quantizationName, pb, pe, classify  
+    from quantization_realtime_info where selected_status = #{code}
   </select>
   
-  <select id="queryQuantizationsBySelectedStatus" parameterType="java.lang.String" resultType="com.personal.quantization.model.QuantizationDetailInfo">
+  <select id="queryQuantizationsBySelectedStatus" parameterType="java.lang.String" resultMap="quantizationDetailInfoMap">
     select qri.quantization_code, qri.quantization_name, qri.max_value, qri.debt_ratio, qri.good_will, 
     	   qri.min_value, qri.pb, qri.pe, qri.classify, qri.source, qri.buy_price,qri.classify,
     	   fd.retained_profits_2016, fd.retained_profits_2017, fd.retained_profits_2018, 

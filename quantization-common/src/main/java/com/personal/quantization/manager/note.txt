@@ -1,0 +1,13 @@
+--atomikos双mysql强一致性事务
+AuthDBConfig.java
+AuthXATransactionConfiguration.java
+QuantizationDBConfig
+QuantizationXATransactionConfiguration.java
+XATransactionManager.java
+
+--配置两个mysql数据源
+AuthTransactionConfiguration.java
+QuantizationTransactionConfiguration.java
+
+----------mongo事务
+MongoTransactionConfig.java

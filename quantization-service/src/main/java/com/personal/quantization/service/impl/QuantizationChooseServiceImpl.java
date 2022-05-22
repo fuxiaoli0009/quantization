@@ -3,6 +3,7 @@ package com.personal.quantization.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -59,6 +60,7 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
 		}
 		log.info("量化待选中数量：{}", size);
 		details.stream().forEach(detail -> {
+			detail.setNegativeCount(0);
 			detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode());
 			detail.setDebtRatio(QuantizationUtil.getTwoPointDouble(detail.getDebtRatio()));
 			detail.setGoodWill(QuantizationUtil.getTwoPointDouble(detail.getGoodWill()));
@@ -68,15 +70,32 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
 			detail.setRetainedProfits2019(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2019()));
 			detail.setRetainedProfits2020(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2020()));
 			detail.setRetainedProfits2021(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2021()));
-			
+			if(detail.getRetainedProfits2016().startsWith("-")) {
+				detail.setNegativeCount(detail.getNegativeCount()+1);
+			}
 		});
-		return details;
+		return details.stream().filter(tail -> filterByCondition(tail)).collect(Collectors.toList());
+	}
+	
+	public boolean filterByCondition(QuantizationDetailInfo tail) {
+		if("3".equals(tail.getSelectedStatus())) {
+			return true;
+		} else {
+			if("半导体".equals(tail.getClassify())) {
+				return tail.getPb() > 0 && tail.getPb() < 5 && (tail.getPe() > 0 || tail.getPe() <-40);
+			}
+			if(!"半导体".equals(tail.getClassify())) {
+				return tail.getNegativeCount()<1 && tail.getPb() > 0 && tail.getPb() < 3 && (tail.getPe() > 0 && tail.getPe() < 50);
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public List<QuantizationDetailInfo> selectQuantizationsByClassify() {
 		List<QuantizationDetailInfo> details = quantizationMapper.selectQuantizationsByClassify();
 		details.stream().forEach(detail -> { 
+			detail.setNegativeCount(0);
 		    detail.setAnalysisURL(Constants.PRE_ANALYSISURL + detail.getQuantizationCode());
 		    detail.setDebtRatio(QuantizationUtil.getTwoPointDouble(detail.getDebtRatio()));
 			detail.setGoodWill(QuantizationUtil.getTwoPointDouble(detail.getGoodWill()));
@@ -86,8 +105,11 @@ public class QuantizationChooseServiceImpl implements QuantizationChooseService 
 			detail.setRetainedProfits2019(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2019()));
 			detail.setRetainedProfits2020(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2020()));
 			detail.setRetainedProfits2021(QuantizationUtil.getTwoPointDouble(detail.getRetainedProfits2021()));
+			if(detail.getRetainedProfits2016().startsWith("-")) {
+				detail.setNegativeCount(detail.getNegativeCount()+1);
+			}
 		});
-		return details;
+		return details.stream().filter(tail -> filterByCondition(tail)).collect(Collectors.toList());
 	}
 
 	@Override

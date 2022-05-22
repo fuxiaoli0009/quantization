@@ -48,7 +48,8 @@
         <springboot.test.version>2.3.0.RELEASE</springboot.test.version>
         <javax.servlet.version>2.5</javax.servlet.version>
         <rocketmq.version>2.2.2</rocketmq.version>
-        <druid.version>1.1.12</druid.version>
+        <druid.version>1.1.21</druid.version>
+        <io.seata.version>1.2.0</io.seata.version>
 	</properties>
     <dependencyManagement>
 	<dependencies>
@@ -117,11 +118,11 @@
 			<version>${lombok.version}</version>
 		</dependency>
 		<!--druid连接池-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>druid</artifactId>
-            <version>${druid.version}</version>
-        </dependency>
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>druid-spring-boot-starter</artifactId>
+			<version>${druid.version}</version>
+		</dependency>
 		<dependency>
           <groupId>com.google.guava</groupId>
           <artifactId>guava</artifactId>
@@ -142,7 +143,11 @@
 			<artifactId>fastjson</artifactId>
 			<version>${fastjson.version}</version>
 		</dependency>
-
+		<dependency>
+	    	<groupId>io.seata</groupId>
+	    	<artifactId>seata-spring-boot-starter</artifactId>
+	    	<version>${io.seata.version}</version>
+	    </dependency>
 		<dependency>
 			<groupId>cglib</groupId>
 			<artifactId>cglib</artifactId>

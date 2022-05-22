@@ -15,5 +15,4 @@ public interface QuantizationService {
 
 	public String getIndex();
 
-
 }

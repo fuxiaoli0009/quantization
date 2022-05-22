@@ -8,9 +8,9 @@ spring:
       config:
         file-extension: yaml
         server-addr: 101.43.110.173:31370
-        group: dev
-        namespace: 424fbe21-5ac6-40c7-8b72-95cecec8daa6
+        group: prod
+        namespace: f06b54a6-ac49-4b87-aec1-ceb3e5d396b1
       discovery:
         server-addr: 101.43.110.173:31370
-        group: dev
-        namespace: 424fbe21-5ac6-40c7-8b72-95cecec8daa6
+        group: prod
+        namespace: f06b54a6-ac49-4b87-aec1-ceb3e5d396b1

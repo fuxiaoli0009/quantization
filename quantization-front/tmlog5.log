@@ -1,0 +1,1 @@
+{"id":"192.168.1.13.tm165296953885100001","wasCommitted":false,"participants":[{"uri":"192.168.1.13.tm1","state":"TERMINATED","expires":1652969548865,"resourceName":"quantizationDataSource"},{"uri":"192.168.1.13.tm2","state":"TERMINATED","expires":1652969548865,"resourceName":"authDataSource"}]}

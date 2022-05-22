@@ -41,7 +41,6 @@ public class QuantizationChooseController {
 	@ApiOperation(value = "2、重新从选出待选中的", httpMethod = "GET")
     @RequestMapping(value = "/selectQuantizations", method = RequestMethod.GET)
     public String selectQuantizations(){
-		//return quantizationChooseService.selectQuantizations();
 		Map<String, Object> maps = new HashMap<String, Object>();
 		maps.put("result", quantizationChooseService.selectQuantizations());
 		return JSON.toJSONString(maps);
